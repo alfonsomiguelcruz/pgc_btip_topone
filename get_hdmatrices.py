@@ -106,15 +106,15 @@ class TARG:
         # (SIMULATIONS, SPARSITY, SAMPLES)
         sparse_list = []
 
-        for i in range(self.SIMULATIONS):
-            sparse_samples = []
-            for p in sparsity_list:
-                sample_size = int(self.SAMPLES * p)
-                sampled_seq = rand.sample(group[i], sample_size)
-                sparse_samples.append(sampled_seq)
-            sparse_list.append(sparse_samples)
+        # for i in range(self.SIMULATIONS):
+        sparse_samples = []
+        for p in sparsity_list:
+            sample_size = int(self.SAMPLES * p)
+            sampled_seq = rand.sample(group[0], sample_size)
+            sparse_samples.append(sampled_seq)
+        sparse_list.append(sparse_samples)
 
-        return sparse_list
+        return sparse_samples
     
     """
     We will now add a noise matrix to the Hamming Distance Matrix to replicate stochasticity.
