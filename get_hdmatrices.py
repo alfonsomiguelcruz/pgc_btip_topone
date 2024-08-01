@@ -101,19 +101,20 @@ class TARG:
                         lists according to increments of 10%.
 
     """
-    def sparsity_sampling(self, sequences):
+    def sparsity_sampling(self, group):
         sparsity_list = [1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1]
+        # (SIMULATIONS, SPARSITY, SAMPLES)
         sparse_list = []
 
         for i in range(self.SIMULATIONS):
             sparse_samples = []
             for p in sparsity_list:
                 sample_size = int(self.SAMPLES * p)
-                sampled_seq = rand.sample(sequences[0][i], sample_size)
+                sampled_seq = rand.sample(group[i], sample_size)
                 sparse_samples.append(sampled_seq)
-        sparse_list.append(sparse_samples)
+            sparse_list.append(sparse_samples)
 
-        return sparse_samples
+        return sparse_list
     
     """
     We will now add a noise matrix to the Hamming Distance Matrix to replicate stochasticity.
@@ -147,7 +148,7 @@ class TARG:
     def get_barcode_lengths(self, homologies):
         barcode_lens = []
 
-        for i in range(1, self.MAXDIM + 1):
+        for i in range(0, self.MAXDIM + 1):
             homologies[i] = homologies[i][np.argsort(homologies[i][:, 1])]
             barcode_lens.append(homologies[i][:, 1] - homologies[i][:, 0])
             
