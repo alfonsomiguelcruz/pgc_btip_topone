@@ -1,3 +1,5 @@
 A folder for all the simulation outputs we have.
 
 Current outputs are generated using the `ms` package.
+
+Folders are arranged according to date of simulation in the format `Sims_mmddyy`
