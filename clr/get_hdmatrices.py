@@ -103,24 +103,37 @@ class TARG:
                         of 10%.
 
     """
-    def sparsity_sampling(self, group):
+    def get_sparse_samples(self, group):
         sparsity_list = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
         # (SIMULATIONS, SPARSITY, SAMPLESIZE)
         # sparse_list = []
 
         # for i in range(self.SIMULATIONS):
 
-        # (SPARSITY, SAMPLESIZE)
-        sparse_samples = []
+        # # (SPARSITY, SAMPLESIZE)
+        # sparse_samples = []
 
-        for p in sparsity_list:
-            sample_size = int(self.SAMPLES * p)
-            sampled_seq = rand.sample(group[0], sample_size)
-            sparse_samples.append(sampled_seq)
+        # for p in sparsity_list:
+        #     sample_size = int(self.SAMPLES * p)
+        #     sampled_seq = rand.sample(group[0], sample_size)
+        #     sparse_samples.append(sampled_seq)
 
-        # sparse_list.append(sparse_samples)
+        # # sparse_list.append(sparse_samples)
 
-        return sparse_samples
+
+        sparsampled_list = [] #over all simulations
+        for sim_idx in range(self.SIMULATIONS):
+
+            sparse_samples = [] # samples over varying sparsities
+
+            for percentage in sparsity_list:
+                sample_size = int(self.SAMPLES * percentage)
+                sampled_seq = rand.sample(group[sim_idx], sample_size)
+                sparse_samples.append(sampled_seq)
+
+            sparsampled_list.append(sparse_samples)
+
+        return sparsampled_list
     
     """
     We will now add a noise matrix to the Hamming Distance Matrix to replicate stochasticity.
@@ -130,15 +143,31 @@ class TARG:
         # to iterate over increasing values of noise variance at increments of 0.1
         var_list = [round(x / 10, 2) for x in range(0,21)]
 
-        # 21 * GROUPS * SIMULATIONS * SAMPLES * SAMPLES
-        noise_list = []
-        for var in var_list:
-            noise_list.append(np.random.normal(0, var, (self.SIMULATIONS, self.SAMPLES, self.SAMPLES)))
+        rand.seed(123)
 
-        # 21 * GROUPS * SIMULATIONS * SAMPLES * SAMPLES
+        # # 21 * GROUPS * SIMULATIONS * SAMPLES * SAMPLES
+        # noise_list = []
+        # for var in var_list:
+        #     noise_list.append(np.random.normal(0, var, (self.SIMULATIONS, self.SAMPLES, self.SAMPLES)))
+
+        # # 21 * GROUPS * SIMULATIONS * SAMPLES * SAMPLES
+        # noisymat_list = []
+        # for noise in noise_list:
+        #     noisymat_list.append(hdmatrices + noise)
+
         noisymat_list = []
-        for noise in noise_list:
-            noisymat_list.append(hdmatrices + noise)
+        for sim_hd in hdmatrices:
+            noise_list = []
+            for var in var_list:
+                error_matrix = np.random.normal(0, var, (self.SAMPLES, self.SAMPLES)) # generates error matrix
+                np.fill_diagonal(error_matrix, 0) # Sets diagonal entries to 0
+                noise_list.append(error_matrix) # appends revised error mat
+
+            noisy_mat_sim = []
+            for noise in noise_list:
+                noisy_mat_sim.append(sim_hd + noise)
+
+            noisymat_list.append(noisy_mat_sim)
 
         return noisymat_list
     
