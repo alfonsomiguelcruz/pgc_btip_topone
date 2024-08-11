@@ -185,7 +185,9 @@ class TARG:
 
         for i in range(0, self.MAXDIM + 1):
             homologies[i] = homologies[i][np.argsort(homologies[i][:, 1])]
-            barcode_lens.append(homologies[i][:, 1] - homologies[i][:, 0])
+            finite_lengths = homologies[i][:, 1] - homologies[i][:, 0]
+            finite_lengths = finite_lengths[np.isfinite(finite_lengths)]
+            barcode_lens.append(finite_lengths)
             
         # for i in homologies:
         #     barcode_lens.append(i[:, 1] - i[:, 0])
