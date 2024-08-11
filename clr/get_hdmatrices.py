@@ -60,11 +60,12 @@ class TARG:
     def get_hdmatrices(self, simulations):
         hdm_sims = []
         for sim in simulations:
+            size = len(sim)
 
             # Construct the Hamming Distance Matrix
-            mat = np.zeros((self.SAMPLES, self.SAMPLES))
-            for i in range(0, self.SAMPLES):
-                for j in range(i, self.SAMPLES):
+            mat = np.zeros((size, size))
+            for i in range(0, size):
+                for j in range(i, size):
                     mat[i, j] = round(distance.hamming(
                             np.array(list(sim[i]), dtype=int),
                             np.array(list(sim[j]), dtype=int)
@@ -104,7 +105,7 @@ class TARG:
 
     """
     def get_sparse_samples(self, group):
-        sparsity_list = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+        sparsity_list = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]
         # (SIMULATIONS, SPARSITY, SAMPLESIZE)
         # sparse_list = []
 
