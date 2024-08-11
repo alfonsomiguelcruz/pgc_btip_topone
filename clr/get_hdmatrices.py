@@ -6,6 +6,7 @@ from scipy.spatial import distance
 import re 
 import numpy as np
 import random as rand
+from ripser import Rips, ripser
 
 class TARG:
     def __init__(self, samples, simulations,
@@ -205,3 +206,19 @@ class TARG:
             barcode_length_vars.append(np.var(l))
 
         return barcode_length_means, barcode_length_vars
+    
+
+
+    def get_homologies(self, hdlist):
+        rips = Rips(maxdim=self.MAXDIM, do_cocycles=True)
+
+        homologies = []
+        for sim in hdlist:
+            hom_grps = []
+
+            for j in range(len(hdlist[sim])):
+                hom_grps.append(rips.fit_transform(sim[j], distance_matrix=True))
+
+            homologies.append(hom_grps)
+
+        return homologies
