@@ -191,8 +191,9 @@ class TARG:
             finite_lengths = finite_lengths[np.isfinite(finite_lengths)]
             barcode_lens.append(finite_lengths)
             
-        # for i in homologies:
-        #     barcode_lens.append(i[:, 1] - i[:, 0])
+        # Replace empty arrays with an array containing zero
+        if len(finite_lengths) == 0:
+            finite_lengths = np.array([0])
 
         return barcode_lens
 
