@@ -189,11 +189,12 @@ class TARG:
             homologies[i] = homologies[i][np.argsort(homologies[i][:, 1])]
             finite_lengths = homologies[i][:, 1] - homologies[i][:, 0]
             finite_lengths = finite_lengths[np.isfinite(finite_lengths)]
-            barcode_lens.append(finite_lengths)
             
-        # Replace empty arrays with an array containing zero
-        if len(finite_lengths) == 0:
-            finite_lengths = np.array([0])
+            # Replace empty arrays with an array containing zero
+            if len(finite_lengths) == 0:
+                finite_lengths = np.array([0])
+            
+            barcode_lens.append(finite_lengths)
 
         return barcode_lens
 
