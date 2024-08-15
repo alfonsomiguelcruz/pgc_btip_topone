@@ -1,0 +1,461 @@
+---
+title: "topONE"
+author: "Claire"
+date: "2024-08-15"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+# tinytex::install_tinytex()
+```
+
+## Setup
+
+```{r}
+library(dplyr)
+library(car)
+library(FSA)
+```
+
+```{r}
+df <- read.csv("Documents/PGC Bioinfo Training/Viral Recombination/Topo ARG/country_homologies.csv")
+attach(df); View(df)
+```
+
+We take manual setting of data frames per country.
+
+```{r}
+ph_df <- df %>%
+  filter(country_code == 'PH', homology == 1) %>%
+  select(gene_type, b_time, d_time)
+
+cn_df <- df %>%
+  filter(country_code == 'CN', homology == 1) %>%
+  select(gene_type, b_time, d_time)
+
+sg_df <- df %>%
+  filter(country_code == 'SG', homology == 1) %>%
+  select(gene_type, b_time, d_time)
+
+sk_df <- df %>%
+  filter(country_code == 'SK', homology == 1) %>%
+  select(gene_type, b_time, d_time)
+
+us_df <- df %>%
+  filter(country_code == 'US', homology == 1) %>%
+  select(gene_type, b_time, d_time)
+```
+
+Try input them into one list for brevity
+
+```{r}
+country_dfs <- list()
+country_dfs[['PH']] <- ph_df
+country_dfs[['CN']] <- cn_df
+country_dfs[['SG']] <- sg_df
+country_dfs[['SK']] <- sk_df
+country_dfs[['US']] <- us_df
+```
+
+# Philippines
+
+## Births
+
+Test assumptions on the anova model
+
+```{r}
+model_ph_births <- aov(b_time ~ gene_type, ph_df)
+# homogeneity of variance
+leveneTest(model_ph_births) #pval>0.05 --> homoscedastic
+
+# normality of residuals
+resid_ph <- residuals(model_ph_births)
+shapiro.test(resid_ph) #p-val<0.05 i.e., not normal
+```
+
+-   For the test on homogeneity of variance, at \$p\$-val \$=0.3381 \> 0.05\$, we fail to reject the null hypothesis, i.e. the model is homoscedastic.
+
+-   With a Shapiro-Wilk normality test, at p-val \< 0.05, we reject the null hypothesis, i.e., the residuals are not normally distributed.
+
+Since the assumptions are not satisfied, we proceed with a nonparametric Kruskal-Wallis test.
+
+```{r}
+# ... Assumptions failed, nonparametric: Kruskal-Wallis
+kruskal.test(b_time ~ gene_type, ph_df)
+# p-val = 0.0489 < 0.05 --> there is a significant difference in birth times between gene types
+
+# post-hoc
+dunnTest(b_time ~ gene_type, data=ph_df, method="bonferroni") 
+#__ all three time pairs are significantly different
+```
+
+The Kruskal-Wallis test returns a p-value = 0.0489 \< 0.05 so we reject the null hypothesis. That is, there is a significant difference in birth times between the three gene types. Post-hoc analysis shows the following:
+
+-   Mixed vs Nonrecombinant —\> significant
+
+-   Mixed vs Recombinant —\> not significant
+
+-   Non-recombinant vs Recombinant —\> not significant
+
+\*Graphs\*
+
+```{r}
+order1 <- c("recombinant", "nonrecombinant", "mixed")
+genetype <- factor(gene_type, levels=order1)
+
+boxplot(b_time~gene_type, data=ph_df, ylab="Birth Times", main="Birth Times of SARS-CoV-2 in the PH across different Gene Types", xlab="Gene Type")
+```
+
+## Deaths
+
+Test assumptions on the anova model
+
+```{r}
+model_ph_deaths <- aov(d_time ~ gene_type, ph_df)
+# homogeneity of variance
+leveneTest(model_ph_deaths) #pval>0.05 --> homoscedastic
+
+# normality of residuals
+resid_ph2 <- residuals(model_ph_deaths)
+shapiro.test(resid_ph2) #p-val<0.05 i.e., not normal
+```
+
+-   For the test on homogeneity of variance, at \$p\$-val \$=0.5452 \> 0.05\$, we fail to reject the null hypothesis, i.e. the model is homoscedastic.
+
+-   With a Shapiro-Wilk normality test, at p-val \< 0.05, we reject the null hypothesis, i.e., the residuals are not normally distributed.
+
+Since the assumptions are not satisfied, we proceed with a nonparametric Kruskal-Wallis test.
+
+```{r}
+# ... Assumptions failed, nonparametric: Kruskal-Wallis
+kruskal.test(d_time ~ gene_type, ph_df)
+# p-val = 0.0489 < 0.05 --> there is a significant difference in birth times between gene types
+
+# post-hoc
+dunnTest(d_time ~ gene_type, data=ph_df, method="bonferroni") 
+#__ all three time pairs are significantly different
+```
+
+The Kruskal-Wallis test returns a p-value = 0.1425 \> 0.05 so we fail to reject the null hypothesis. That is, there is no significant difference in birth times between the three gene types. Post-hoc analysis shows the following:
+
+-   Mixed vs Nonrecombinant —\> not significant
+
+-   Mixed vs Recombinant —\> not significant
+
+-   Non-recombinant vs Recombinant —\> not significant
+
+\*Graphs\*
+
+```{r}
+order1 <- c("recombinant", "nonrecombinant", "mixed")
+genetype <- factor(gene_type, levels=order1)
+
+boxplot(d_time~gene_type, data=ph_df, ylab="Death Times", main="Birth Times of SARS-CoV-2 in the PH across different Gene Types", xlab="Gene Type")
+```
+
+## 
+
+# China
+
+## Births
+
+Test assumptions on the anova model
+
+```{r}
+model_cn_births <- aov(b_time ~ gene_type, cn_df)
+# homogeneity of variance
+leveneTest(model_cn_births) #pval>0.05 --> heteroscedastic
+
+# normality of residuals
+resid_cn <- residuals(model_cn_births)
+shapiro.test(resid_cn) #p-val<0.05 i.e., not normal
+```
+
+-   For the test on homogeneity of variance, at \$p\$-val \$ \> 0.05\$, we fail to reject the null hypothesis, i.e. the model is homoscedastic.
+
+-   With a Shapiro-Wilk normality test, at p-val \< 0.05, we reject the null hypothesis, i.e., the residuals are not normally distributed.
+
+Since the assumptions are not satisfied, we proceed with a nonparametric Kruskal-Wallis test.
+
+```{r}
+# ... Assumptions failed, nonparametric: Kruskal-Wallis
+kruskal.test(b_time ~ gene_type, cn_df)
+# p-val = 1 > 0.05 --> there is no significant difference in birth times between gene types
+
+# post-hoc
+dunnTest(b_time ~ gene_type, data=cn_df, method="bonferroni") 
+#__ all three time pairs are significantly different
+```
+
+The Kruskal-Wallis test returns a p-value = 0.0489 \< 0.05 so we reject the null hypothesis. That is, there is a significant difference in birth times between the three gene types. Post-hoc analysis shows the following:
+
+-   Mixed vs Nonrecombinant —\> significant
+
+    \*Graphs\*
+
+```{r}
+order1 <- c("recombinant", "nonrecombinant", "mixed")
+genetype <- factor(gene_type, levels=order1)
+
+boxplot(b_time~gene_type, data=cn_df, ylab="Birth Times", main="Birth Times of SARS-CoV-2 in the CN across different Gene Types", xlab="Gene Type")
+```
+
+## Deaths
+
+Test assumptions on the anova model
+
+```{r}
+model_cn_deaths <- aov(d_time ~ gene_type, cn_df)
+# homogeneity of variance
+leveneTest(model_cn_deaths) #pval>0.05 --> homoscedastic
+
+# normality of residuals
+resid_ph3<- residuals(model_cn_deaths)
+shapiro.test(resid_ph3) #p-val<0.05 i.e., not normal
+```
+
+-   For the test on homogeneity of variance, at \$p\$-val \$\> 0.05\$, we fail to reject the null hypothesis, i.e. the model is homoscedastic.
+
+-   With a Shapiro-Wilk normality test, at p-val \< 0.05, we reject the null hypothesis, i.e., the residuals are not normally distributed.
+
+Since the assumptions are not satisfied, we proceed with a nonparametric Kruskal-Wallis test.
+
+```{r}
+# ... Assumptions failed, nonparametric: Kruskal-Wallis
+kruskal.test(d_time ~ gene_type, cn_df)
+# p-val = 0.0489 < 0.05 --> there is a significant difference in birth times between gene types
+
+# post-hoc
+dunnTest(d_time ~ gene_type, data=cn_df, method="bonferroni") 
+#__ all three time pairs are significantly different
+```
+
+The Kruskal-Wallis test returns a p-value = 0.1425 \> 0.05 so we fail to reject the null hypothesis. That is, there is no significant difference in deaths times between the three gene types. Post-hoc analysis shows the following:
+
+-   Mixed vs Nonrecombinant —\> not significant
+
+\*Graphs\*
+
+```{r}
+order1 <- c("recombinant", "nonrecombinant", "mixed")
+genetype <- factor(gene_type, levels=order1)
+
+boxplot(d_time~gene_type, data=cn_df, ylab="Death Times", main="Birth Times of SARS-CoV-2 in the PH across different Gene Types", xlab="Gene Type")
+```
+
+# Singapore
+
+## Births
+
+Test assumptions on the anova model
+
+```{r}
+model_sg_births <- aov(b_time ~ gene_type, sg_df)
+# homogeneity of variance
+leveneTest(model_sg_births) #pval>0.05 --> heteroscedastic
+
+# normality of residuals
+resid_sg <- residuals(model_sg_births)
+shapiro.test(resid_sg) #p-val<0.05 i.e., not normal
+```
+
+-   For the test on homogeneity of variance, at \$p\$-val \$ \> 0.05\$, we fail to reject the null hypothesis, i.e. the model is homoscedastic.
+
+-   With a Shapiro-Wilk normality test, at p-val \< 0.05, we reject the null hypothesis, i.e., the residuals are not normally distributed.
+
+Since the assumptions are not satisfied, we proceed with a nonparametric Kruskal-Wallis test.
+
+```{r}
+# ... Assumptions failed, nonparametric: Kruskal-Wallis
+kruskal.test(b_time ~ gene_type, data = sg_df)
+# p-val = 1 > 0.05 --> there is no significant difference in birth times between gene types
+
+# post-hoc
+dunnTest(b_time ~ gene_type, data=sg_df, method="bonferroni") 
+#__ all three time pairs are significantly different
+```
+
+The Kruskal-Wallis test returns a p-value = 1 \> 0.05 so we fail reject the null hypothesis. That is, there is no significant difference in birth times between the three gene types. Post-hoc analysis shows the following:
+
+-   Mixed vs Nonrecombinant —\> significant
+
+    \*Graphs\*
+
+```{r}
+order1 <- c("recombinant", "nonrecombinant", "mixed")
+genetype <- factor(gene_type, levels=order1)
+
+boxplot(b_time~gene_type, data=sg_df, ylab="Birth Times", main="Birth Times of SARS-CoV-2 in SG across different Gene Types", xlab="Gene Type")
+```
+
+## Deaths
+
+Test assumptions on the anova model
+
+```{r}
+model_sg_deaths <- aov(d_time ~ gene_type, sg_df)
+# homogeneity of variance
+leveneTest(model_sg_deaths) #pval>0.05 --> homoscedastic
+
+# normality of residuals
+resid_sg<- residuals(model_sg_deaths)
+shapiro.test(resid_sg) #p-val<0.05 i.e., not normal
+```
+
+-   For the test on homogeneity of variance, at \$p\$-val \$\> 0.05\$, we fail to reject the null hypothesis, i.e. the model is homoscedastic.
+
+-   With a Shapiro-Wilk normality test, at p-val \< 0.05, we reject the null hypothesis, i.e., the residuals are not normally distributed.
+
+Since the assumptions are not satisfied, we proceed with a nonparametric Kruskal-Wallis test.
+
+```{r}
+# ... Assumptions failed, nonparametric: Kruskal-Wallis
+kruskal.test(d_time ~ gene_type, sg_df)
+# p-val = 0.0489 < 0.05 --> there is a significant difference in birth times between gene types
+
+# post-hoc
+dunnTest(d_time ~ gene_type, data=sg_df, method="bonferroni") 
+#__ all three time pairs are significantly different
+```
+
+The Kruskal-Wallis test returns a p-value = 0.1425 \> 0.05 so we fail to reject the null hypothesis. That is, there is no significant difference in deaths times between the three gene types. Post-hoc analysis shows the following:
+
+-   Mixed vs Nonrecombinant —\> not significant
+
+\*Graphs\*
+
+```{r}
+order1 <- c("recombinant", "nonrecombinant", "mixed")
+genetype <- factor(gene_type, levels=order1)
+
+boxplot(d_time~gene_type, data=sg_df, ylab="Death Times", main="Birth Times of SARS-CoV-2 in the SG across different Gene Types", xlab="Gene Type")
+```
+
+## 
+
+# South Korea
+
+## Births
+
+(Skipping the assumptions for brevity of file but all are failed)
+
+```{r}
+# ... Assumptions failed, nonparametric: Kruskal-Wallis
+kruskal.test(b_time ~ gene_type, data = sk_df)
+# p-val = 1 > 0.05 --> there is no significant difference in birth times between gene types
+
+# post-hoc
+dunnTest(b_time ~ gene_type, data=sk_df, method="bonferroni") 
+#__ all three time pairs are significantly different
+```
+
+The Kruskal-Wallis test returns a p-value = 0.0461 \< 0.05 so we reject the null hypothesis. That is, there is a significant difference in birth times between the three gene types. Post-hoc analysis shows the following:
+
+-   Mixed vs Nonrecombinant —\> not significant
+
+-   Mixed vs Recombinant —\> (not) significant
+
+-   Non-recombinant vs Recombinant —\> (not) significant
+
+\*Graphs\*
+
+```{r}
+order1 <- c("recombinant", "nonrecombinant", "mixed")
+genetype <- factor(gene_type, levels=order1)
+
+boxplot(b_time~gene_type, data=sk_df, ylab="Death Times", main="Birth Times of SARS-CoV-2 in SK across different Gene Types", xlab="Gene Type")
+```
+
+## Deaths
+
+(Skipping the assumptions for brevity of file but all are failed)
+
+```{r}
+# ... Assumptions failed, nonparametric: Kruskal-Wallis
+kruskal.test(d_time ~ gene_type, data = sk_df)
+# p-val = 1 > 0.05 --> there is no significant difference in birth times between gene types
+
+# post-hoc
+dunnTest(d_time ~ gene_type, data=sk_df, method="bonferroni") 
+#__ all three time pairs are significantly different
+```
+
+The Kruskal-Wallis test returns a p-value = 0.04732 \< 0.05 so we reject the null hypothesis. That is, there is a significant difference in birth times between the three gene types. Post-hoc analysis shows the following:
+
+-   Mixed vs Nonrecombinant —\> not significant
+
+-   Mixed vs Recombinant —\> (not) significant
+
+-   Non-recombinant vs Recombinant —\> (not) significant
+
+\*Graphs\*
+
+```{r}
+order1 <- c("recombinant", "nonrecombinant", "mixed")
+genetype <- factor(gene_type, levels=order1)
+
+boxplot(d_time~gene_type, data=sk_df, ylab="Death Times", main="Death Times of SARS-CoV-2 in SK across different Gene Types", xlab="Gene Type")
+```
+
+## 
+
+# United States
+
+## Births
+
+(Skipping the assumptions for brevity of file but all are failed)
+
+```{r}
+# ... Assumptions failed, nonparametric: Kruskal-Wallis
+kruskal.test(b_time ~ gene_type, data = us_df)
+# p-val = 1 > 0.05 --> there is no significant difference in birth times between gene types
+
+# post-hoc
+dunnTest(b_time ~ gene_type, data=us_df, method="bonferroni") 
+#__ all three time pairs are significantly different
+```
+
+The Kruskal-Wallis test returns a p-value = 1\>0.05 so we fail to reject the null hypothesis. That is, there is no significant difference in birth times between the three gene types. Post-hoc analysis shows the following:
+
+-   Mixed vs Nonrecombinant —\> not significant
+
+\*Graphs\*
+
+```{r}
+order1 <- c("recombinant", "nonrecombinant", "mixed")
+genetype <- factor(gene_type, levels=order1)
+
+boxplot(b_time~gene_type, data=us_df, ylab="Death Times", main="Birth Times of SARS-CoV-2 in the US across different Gene Types", xlab="Gene Type")
+```
+
+## Deaths
+
+(Skipping the assumptions for brevity of file but all are failed)
+
+```{r}
+# ... Assumptions failed, nonparametric: Kruskal-Wallis
+kruskal.test(d_time ~ gene_type, data = us_df)
+# p-val = 1 > 0.05 --> there is no significant difference in birth times between gene types
+
+# post-hoc
+dunnTest(d_time ~ gene_type, data=us_df, method="bonferroni") 
+#__ all three time pairs are significantly different
+```
+
+The Kruskal-Wallis test returns a p-value = 1\> 0.05 so we fail to reject the null hypothesis. That is, there is no significant difference in birth times between the three gene types. Post-hoc analysis shows the following:
+
+-   Mixed vs Nonrecombinant —\> not significant
+
+\*Graphs\*
+
+```{r}
+order1 <- c("recombinant", "nonrecombinant", "mixed")
+genetype <- factor(gene_type, levels=order1)
+
+boxplot(d_time~gene_type, data=us_df, ylab="Death Times", main="Death Times of SARS-CoV-2 in the US across different Gene Types", xlab="Gene Type")
+```
+
+## 
+
+# 
