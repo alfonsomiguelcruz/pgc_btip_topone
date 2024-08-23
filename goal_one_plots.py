@@ -71,7 +71,6 @@ def get_single_plot(nsam, theta, rho):
                     seqtype="SIM",
                     maxdim=2,
                     simulations=params["SIMULATIONS"],
-                    groups=params["GROUPS"],
                     segsites=params["SEGSITES"])
     
     # Get the sequences for each simulation from the input text file
