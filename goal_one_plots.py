@@ -182,5 +182,5 @@ def main():
     elif args.get_one_plot == args.get_all_plots:
         print("Error: Both options chosen. Please choose one option only.")
 
-if __name__=="__main__":
+if __name__== "__main__":
     main()
