@@ -1,6 +1,6 @@
 # TopONE (Topological Omics for Non-tree Evolution)
 
-This project that aims to understand how recombination events influence the topology structure and its quantities using topological data analysis (TDA). The project seeks to determine whether topology can detect recombination events. More specifically, this project asks the following questions :
+This project aims to understand how recombination events influence various topological quantities of a genomic dataset using topological data analysis (TDA). The project seeks to determine whether topology can detect recombination events. More specifically, this project asks the following questions :
 
 1. Is topology robust to noise and sparse genomic samples?
 2. Does recombination change the topology of genommic samples?
