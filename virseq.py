@@ -134,3 +134,11 @@ class VirSeq:
             noisymat_list.append(noise_mat)
 
         return noisymat_list
+    
+
+    """
+    TODO:
+    Get all hdmatrices and homologies in the HD matrix
+    """
+    def get_all_homologies():
+        pass
