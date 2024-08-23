@@ -10,10 +10,19 @@ The project's repository makes use of scripts and sequence files to answer the q
 ## Installation
 ### Population Genetics Software `ms`
 Text Here
+
+### Sequence Alignment Software `nextclade`
+Text Here
+
 ### Required Libraries
 Text Here
 
 Command for Execution: `pip install -r requirements.txt`
+
+
+## Data
+The viral sequence data were taken from the GISAID database.
+<!-- TODO: Add More Description -->
 
 ## Execution
 Goal One: `python goal_one_plots.py --get-one-plot -n 100 -t 50 -r 72`.
