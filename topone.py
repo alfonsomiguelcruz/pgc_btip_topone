@@ -380,7 +380,6 @@ class TopONE:
     
     def get_betti_numbers(self, homologies):
         """
-        TODO: Convert Format like the ones above
         Computes for the Betti numbers of every homology
 
         Parameters:
@@ -401,7 +400,6 @@ class TopONE:
     
     def get_barcode_lengths(self, homologies):
         """
-        TODO: Convert Format like the ones above
         Computes for the barcode lengths of every homology.
         The barcode lengths are computed as the difference between
         the death time from the birth time.
@@ -425,25 +423,24 @@ class TopONE:
     
     def get_barcode_length_statistics(self, barcode_lengths):
         """
-        TODO: Convert Format like the ones above
-        Gets the means and variances 
-        Computes for the barcode lengths of every homology.
-        The barcode lengths are computed as the difference between
-        the death time from the birth time.
+        Gets the means and variances of the barcode lengths for every homology.
         --------------------
         Parameters:
-            barcode_lengths - a 2-D list, where each element is a homology
-                            with a 1-D list of the barcode lengths
+        barcode_lengths :   list
+            A 2-D list of dimension (MAXDIM+1, X), containing the
+            X barcode lengths all (MAXDIM+1) homologies.
 
+            
         Returns:
-            barcode_length_means - a 1-D list, where the kth element
-                                of the list represents the mean of
-                                the barcode lengths in homology k
+        barcode_length_means    :   list
+            A 1-D list with (MAXDIM+1) elements, where the kth element
+            is the barcode length mean of the kth homology.
 
-            barcode_length_vars - a 1-D list, where the kth element
-                                of the list represents the variance of
-                                the barcode lengths in homology k
+        barcode_length_vars     :   list
+            A 1-D list with (MAXDIM+1) elements, where the kth element
+            is the variance of the barcode lengths in homology H_k.
         """
+
         barcode_length_means = []
         barcode_length_vars  = []
         
@@ -454,32 +451,44 @@ class TopONE:
         return barcode_length_means, barcode_length_vars
     
 
-    def plot(self, hom, title="Updated Persistence Diagram"):
+    def plot(self, hom, title="Persistence Diagram"):
         """
-        TODO: Convert Format like the ones above
+        Creates a persistence diagram plot, containing the birth and death time
+        pairs of each homology group in the topology, and the frequency distributions
+        of the birth and death times for each homology, except for the H0 birth times.
+        --------------------
+        Parameters:
+
+        hom     :   list
+            A 2-D list of dimension (MAXDIM+1, X), containing the (MAXDIM+1) homology
+            groups, each with its list of birth and death time pairs.
+
+        title   :   String, default = "Persistence Diagram"
+            A string containing the title of the persistence diagram.
         """
+
         plot_diagrams.plot(hom, title)
 
 
-    def plot_multiple_diagrams(self, varshom):
+    def plot_barcode_diagram(self, betti_nums, hom, title="Barcode Diagram"):
         """
-        TODO: Convert Format like the ones above
+        Creates a barcode diagram, that visualizes the lengths of the barcodes for
+        every homology group, which is the difference of the death times from the birth times.
+        --------------------
+        Parameters:
+
+        betti_nums  :   list
+            A 1-D list of length (MAXDIM+1), where the kth element is the
+            kth Betti number of the kth homology.
+
+        hom         :   list
+            A 2-D list of dimension (MAXDIM+1, X), containing the (MAXDIM+1) homology
+            groups, each with its list of birth and death time pairs.
+
+        title       :   String, default = "Barcode Diagram"
+            A string containing the title of the barcode diagram.
         """
-        fig, axs = plt.subplots(nrows=21, ncols=5, figsize=(25,105))
-
-        # Loop over the range of variances and simulations
-        for var in range(len(self.varlist)):
-            for sim in range(self.params["SIMULATIONS"]):
-                self.ripser.plot(varshom[var][sim], ax=axs[var, sim], show=False)
-
-        plt.show()
-
-
-    def plot_barcode_diagram(self, betti_numbers, hom, title="Barcode Diagram"):
-        """
-        TODO: Convert Format like the ones above
-        """
-        plot_diagrams.plot_barcode_diagrams(betti_numbers, hom, title)
+        plot_diagrams.plot_barcode_diagrams(betti_nums, hom, title)
 
 
     def plot_topoquant_diagram(self, betti_numbers,
@@ -488,7 +497,26 @@ class TopONE:
                                save_as_pdf=False,
                                pdf_fname=None):
         """
-        TODO: Convert Format like the ones above
+        Creates the plots that displays the values of the topological quantities
+        when variance increases or sparsity increases.
+        --------------------
+        Parameters:
+
+        betti_numbers       :   list
+            XXX
+
+        barcode_mean_length :   list
+            XXX
+
+        barcode_vars_length :   list
+            XXX
+
+        save_as_pdf :   Boolean, default = False
+            A Boolean value dictating whether the plot should be saved in
+            a PDF file or be displayed as is.
+
+        pdf_fname   :   String, default = None
+            A String containing the filename of the plots in a PDF file format.
         """
         plot_diagrams.plot_topoquant_diagram(self.params,
                                              betti_numbers,
@@ -504,7 +532,26 @@ class TopONE:
                                   list_type,
                                   fname):
         """
-        TODO: Convert Format like the ones above
+        Creates the dataframe for the topological quantities per simulation
+        and per value of sparsity or variance.
+        --------------------
+        Parameters:
+        
+        betti_numbers       :   list
+            XXX
+        
+        barcode_mean_length :   list
+            XXX
+
+        barcode_vars_length :   list
+            XXX
+        
+        list_type           :   String
+            A string that determines whether the dataframe will use values from
+            the varlist ("VARLIST") or spalist ("SPALIST").
+
+        fname               :   String
+            The filename of the dataframe.
         """
         val = len(self.params[list_type])
         
