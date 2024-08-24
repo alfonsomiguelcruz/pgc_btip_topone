@@ -1,6 +1,8 @@
 from topone import TopONE
+from virseq import Virseq
 import argparse
 import logging
+import random
 import numpy as np
 import pandas as pd
 
@@ -23,6 +25,61 @@ parser.add_argument("--seqs", help="Custom Sequences")
 args = parser.parse_args()
 
 
+def get_custom_hdmatrices(lineage, fname="sequence_counts.csv"):
+    paths, codes, countries = get_custom_filepaths(lineage)
+    df = pd.read_csv(fname)
+    countries_matrices = []
+
+    topone = TopONE(samples=-1,
+                    seqtype="VIR",
+                    maxdim=2,
+                    simulations=-1,
+                    segsites=-1)
+
+
+    for c in range(0, len(countries)):
+        r = df.loc[c == df["country"]]["recom"]
+        p1 = df.loc[c == df["country"]]["parent_one"]
+        p2 = df.loc[c == df["country"]]["parent_two"]
+
+        c_hds = []
+        for p in paths[c]:
+            ss = topone.get_sample_sequences(p)
+            if "_recom_" in p:
+                hd = topone.get_hdmatrices(ss)
+                c_hds.append(hd)
+            elif "_nonrecom_" in p:
+                nr_size = (300 - r) // 2
+
+                ss = ss[:nr_size] + ss[-nr_size:]
+                hd = topone.get_hdmatrices(ss)
+                c_hds.append(hd)
+            else:
+                x = max(p1, p2)
+                y = min(p1, p2)
+
+                if len(ss[:x]) <= nr_size:
+                    nr1 = ss[:x]
+                else:
+                    nr1 = random.sample(ss[:x], nr_size)
+
+                if len(ss[x:(x+y)]) <= nr_size:
+                    nr2 = ss[x:(x+y)]
+                else:
+                    nr2 = random.sample(ss[x:(x+y)], nr_size)
+
+                r = ss[(x+y):]
+                ss = nr1 + nr2 + r
+
+                hd = topone.get_hdmatrices(ss)
+                c_hds.append(hd)
+
+        
+        countries_matrices.append(c_hds)
+
+    return countries_matrices
+
+
 def get_custom_filepaths(lineage, fname="countries.csv"):
     paths = []
 
@@ -40,9 +97,6 @@ def get_custom_filepaths(lineage, fname="countries.csv"):
     return paths, codes, countries
 
 
-"""
-TODO: Choice only for using our hd matrices
-"""
 def get_sample_filepaths(lineage):
     paths = []
 
@@ -77,7 +131,7 @@ def get_sample_filepaths(lineage):
 """
 TODO: filter down the choices according to user input
 """
-def get_recom_dataframe(lineage):
+def get_recom_dataframe(lineage, topone=None):
     """
     Extract sequences from FASTA (r, nr, m)
     HDMat
@@ -89,11 +143,12 @@ def get_recom_dataframe(lineage):
     """
     gene_types = ["recom", "nonrecom", "mixed"]
 
-    topone = TopONE(samples=-1,
-                    seqtype="VIR",
-                    maxdim=2,
-                    simulations=-1,
-                    segsites=-1)
+    if topone is None:
+        topone = TopONE(samples=-1,
+                        seqtype="VIR",
+                        maxdim=2,
+                        simulations=-1,
+                        segsites=-1)
 
     # filepath = fname
     # seqs = topone.get_sample_sequences(fname)
@@ -103,7 +158,7 @@ def get_recom_dataframe(lineage):
     # hom = topone.fit_transform(hdmat)
 
     paths, codes, countries = get_sample_filepaths(lineage)
-    print(paths)
+
     # (COUNTRIES, GENETYPES, HOMOLOGIES, PAIRSPERHOM)
     countries_homologies = []
 
