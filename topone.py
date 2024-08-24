@@ -104,6 +104,7 @@ class TopONE:
             The birth and death time pairs of each homology
             from H_0 to H_maxdim.
         """
+
         hom = self.ripser.fit_transform(data,
                                         distance_matrix=is_dist_mat)
         hom[0] = np.delete(hom[0], -1, axis=0)
@@ -118,6 +119,7 @@ class TopONE:
         """
         Switches the sequence type from SIM to VIR or vice versa.
         """
+
         if self.SEQTYPE == "SIM":
             self.SEQTYPE = "VIR"
         else:
@@ -146,6 +148,7 @@ class TopONE:
         sequences   : list
             The list of sequences taken from the input files.
         """
+
         sequences = None
         if self.SEQTYPE == "SIM":
             sequences = self.simseq.get_sample_sequences(fname, self.params)
@@ -157,28 +160,28 @@ class TopONE:
 
     def get_hdmatrices(self, sequences):
         """
-        TODO: Convert Format like the ones above
         Produces the hamming distance matrix of a collection of sequences.
-
+        --------------------
         Parameters:
-            sequences - SEQTYPE VIR:
-                            a 1-D list of dimension (SAMPLES) containing the
-                            processed biological sequences from viral samples.
-                        
-                        SEQTYPE SIM:
-                            a 2-D list of dimension (SIMULATION, SAMPLES)
-                            containing all simulations each with a list of
-                            in biallelic (0 and 1) formatted sequences.
 
-        Returns:
-            hdmatrices - SEQTYPE VIR:
-                                a 2-D matrix of dimension (SAMPLES, SAMPLES).
+        sequences   :   list
+            [SEQTYPE - VIR] a 1-D list of dimension (SAMPLES) containing
+            the processed biological sequences from viral samples.
                         
-                        SEQTYPE SIM:
-                            a 3-D list of dimension (SIMULATION, SAMPLES, SAMPLES)
-                            where each simulation has a 2-D matrix of dimension
-                            (SAMPLES, SAMPLES).
+            [SEQTYPE - SIM] a 2-D list of dimension (SIMULATION, SAMPLES)
+            containing all simulations each with a list of in biallelic (0 and 1)
+            formatted sequences.
+
+            
+        Returns:
+
+        hdmatrices  :   list
+            [SEQTYPE - VIR] a 2-D matrix of dimension (SAMPLES, SAMPLES).
+                        
+            [SEQTYPE - SIM] a 3-D list of dimension (SIMULATION, SAMPLES, SAMPLES)
+            where each simulation has a 2-D matrix of dimension (SAMPLES, SAMPLES).
         """
+
         hdmatrices = None
 
         if self.SEQTYPE == "SIM":
@@ -193,10 +196,31 @@ class TopONE:
 
     def get_all_homologies(self, hdmatrices):
         """
-        TODO: Convert Format like the ones above
-        Gets all the homologies per variance/sparsity per simulation
-        (21/10, SIMULATIONS, MAXDIM+1, X)
+        Used exclusively for SEQTYPE SIM.
+
+        Gets the homologies for each Hamming distance matrix per simulation.
+        Computing homologies per simulation is repeated 21 times for each variance value
+        in "varlist" to add noise to the matrices, or 10 times for each sparsity value in
+        "spalist" to apply to the population of sequences.
+        --------------------
+        Parameters:
+
+        hdmatrices  :   list
+            A 3-D list of dimension (SIMULATIONS, SAMPLES, SAMPLES), containing
+            the Hamming distance matrices of per simulation. For noise-added matrices,
+            the matrix dimensions are (SAMPLES, SAMPLES). For matrices from sparse populations,
+            the dimensions are (SAMPLES*X, SAMPLES*X), where X is a value in "spalist".
+
+        
+        Returns:
+
+        all_homologies  :   list
+            A 4-D list of dimension (21/10, SIMULATIONS, MAXDIM+1, X), where
+            for every value of variance (21) or sparsity (10), each simulation has a
+            list of (MAXDIM+1) homologies, with each homology group having X pairs of
+            birth and death times.
         """
+
         all_homologies = []
         for sim in hdmatrices:
             hom_grps = []
@@ -210,67 +234,98 @@ class TopONE:
     
     def get_all_topoquants(self, homologies):
         """
-        TODO: Convert Format like the ones above
-        Gets all the topological quantities per variance per simulation
-        (21, SIMULATIONS, MAXDIM+1)
-        """
-        betti_nums = []
-        betti_mean_lens = []
-        betti_vars_lens = []
+        Used exclusively for SEQTYPE SIM.
 
-        # 21
+        Gets the topological quantities (Betti numbers, barcode length mean, barcode length variance)
+        in each list of homologies per simulation. Computing topological quantities is
+        repeated 21 times for every variance value in "varlist" or 10 times for every
+        sparsity value in "spalist".
+        --------------------
+        Parameters:
+
+        homologies  :   list
+            A 4-D list of dimension (21/10, SIMULATIONS, MAXDIM+1, X), where
+            for every value of variance (21) or sparsity (10), each simulation has a
+            list of (MAXDIM+1) homologies, with each homology group having X pairs of
+            birth and death times.
+        
+        
+        Returns:
+
+        betti_nums      :   list
+            A 3-D list of dimension (21/10, SIMULATIONS, MAXDIM+1), where for every
+            value of variance (21) or sparsity (10), each simulation has a
+            list of length (MAXDIM+1) containing the Betti numbers of each homology group.
+
+        bcode_mean_lens :   list
+            A 3-D list of dimension (21/10, SIMULATIONS, MAXDIM+1), where for every
+            value of variance (21) or sparsity (10), each simulation has a list of length
+            (MAXDIM+1) containing the barcode length mean for each homology group.
+
+        bcode_vars_lens :   list
+            A 3-D list of dimension (21/10, SIMULATIONS, MAXDIM+1), where for every
+            value of variance (21) or sparsity (10), each simulation has a list of length
+            (MAXDIM+1) containing the barcode length variance for each homology group.
+        """
+
+        betti_nums = []
+        bcode_mean_lens = []
+        bcode_vars_lens = []
+
+        # 21/10
         for i in range(len(homologies)):
             sim_betti_nums = []
-            sim_betti_mean_lens = []
-            sim_betti_vars_lens = []
+            sim_bcode_mean_lens = []
+            sim_bcode_vars_lens = []
             
             # SIMULATIONS
             for j in range(len(homologies[i])):
                 hom = homologies[i][j]
 
+                # MAXDIM + 1
                 bn = self.get_betti_numbers(hom)
                 bl = self.get_barcode_lengths(hom)
                 bml, blv = self.get_barcode_length_statistics(bl)
 
                 sim_betti_nums.append(bn)
-                sim_betti_mean_lens.append(bml)
-                sim_betti_vars_lens.append(blv)
+                sim_bcode_mean_lens.append(bml)
+                sim_bcode_vars_lens.append(blv)
             
             betti_nums.append(sim_betti_nums)
-            betti_mean_lens.append(sim_betti_mean_lens)
-            betti_vars_lens.append(sim_betti_vars_lens)
+            bcode_mean_lens.append(sim_bcode_mean_lens)
+            bcode_vars_lens.append(sim_bcode_vars_lens)
 
-        return betti_nums, betti_mean_lens, betti_vars_lens
+        return betti_nums, bcode_mean_lens, bcode_vars_lens
                 
 
     
     def sparsity_sampling(self, sequences):
         """
-        TODO: Convert Format like the ones above
-        Takes a fraction of sequences from the population of sequences.
-
+        Takes a fraction of sequences from the population of sequences, where each
+        fraction or percentage to apply to the sequences is taken from "spalist", a
+        list containing fractional values from 0.1 to 1.0 in 0.1 increments.
+        --------------------
         Parameters:
-            sequences - SEQTYPE VIR:
-                            a 1-D list containing the list of viral sequences.
+        
+        sequences   :   list
+            [SEQTYPE - VIR] a 1-D list containing the list of viral sequences.
                         
-                        SEQTYPE SIM:
-                            a 2D list of dimension (SIMULATION, SAMPLES)
-                            where each simulation contains the population of
-                            biallelic sequences.
+            [SEQTYPE - SIM] a 2D list of dimension (SIMULATION, SAMPLES)
+            where each simulation contains the population of biallelic sequences.
 
+            
         Returns:
-            sparse_samples - SEQTYPE VIR:
-                                a 2-D list of dimension (10, SAMPLES),
-                                where each element contains a fraction of
-                                the population of sequences in varying
-                                values of sparsity.
+        
+        sparse_samples  :   list
+            [SEQTYPE - VIR] A 2-D list of dimension (10, SAMPLES),
+            where each element contains a fraction of the population of sequences
+            in varying values of sparsity.
                         
-                            SEQTYPE SIM:
-                                a 3-D list of dimension (10, SIMULATIONS, SAMPLES),
-                                where each element contains a fraction of
-                                the populations in each simulation with
-                                varying values of sparsity.
+            [SEQTYPE - SIM] A 3-D list of dimension (10, SIMULATIONS, SAMPLES),
+            where each element contains a fraction of the populations in each
+            simulation with varying values of sparsity.
         """
+
         sparse_samples = None
 
         if self.SEQTYPE == "SIM":
@@ -286,28 +341,30 @@ class TopONE:
     
     def add_stochasticity(self, hdmatrices):
         """
-        TODO: Convert Format like the ones above
-        Adds the stochasticity or noise to the Hamming Distance (HD) matrices
-
+        Adds stochasticity or noise to the Hamming distance matrices. The noise is taken
+        from a Normal distribution of mean = 0 and standard deviation of sqrt(var), where
+        var is a value in the list "varlist" and is added to the original Hamming distance
+        matrices.
+        --------------------
         Parameters:
-            hdmatrices - SEQTYPE VIR:
-                            a 2-D HD matrix of dimension (SAMPLES, SAMPLES)
-                        
-                        SEQTYPE SIM:
-                            a 3-D list of dimension (SIMULATION, SAMPLES, SAMPLES)
-                            where each simulation has a 2-D matrix of dimension
-                            (SAMPLES, SAMPLES).
 
+        hdmatrices  :   list
+            [SEQTYPE - VIR] a 2-D HD matrix of dimension (SAMPLES, SAMPLES)
+                    
+            [SEQTYPE - SIM] a 3-D list of dimension (SIMULATION, SAMPLES, SAMPLES)
+            where each simulation has a 2-D matrix of dimension (SAMPLES, SAMPLES).
+
+            
         Returns:
-            hdmatrices_stoch - SEQTYPE VIR:
-                                    a 3-D list of dimension (21, SAMPLES, SAMPLES),
-                                    where 21 HD matrices are made for every variance value.
+        
+        hdmatrices_stoch    :   list
+            [SEQTYPE - VIR] a 3-D list of dimension (21, SAMPLES, SAMPLES),
+            where 21 HD matrices are made for every variance value.
                         
-                            SEQTYPE SIM:
-                                a 4-D list of dimension (21, SIMULATION, SAMPLES, SAMPLES)
-                                where 21 HD matrices are made for every variance value,
-                                done for each simulation.
+            [SEQTYPE - SIM] a 4-D list of dimension (21, SIMULATION, SAMPLES, SAMPLES)
+            where 21 HD matrices are made for every variance value, for each simulation.
         """
+
         hdmatrices_stoch = None
 
         if self.SEQTYPE == "SIM":
@@ -369,10 +426,11 @@ class TopONE:
     def get_barcode_length_statistics(self, barcode_lengths):
         """
         TODO: Convert Format like the ones above
+        Gets the means and variances 
         Computes for the barcode lengths of every homology.
         The barcode lengths are computed as the difference between
         the death time from the birth time.
-
+        --------------------
         Parameters:
             barcode_lengths - a 2-D list, where each element is a homology
                             with a 1-D list of the barcode lengths
