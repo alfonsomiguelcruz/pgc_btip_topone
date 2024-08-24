@@ -6,17 +6,6 @@ import random
 import numpy as np
 import pandas as pd
 
-"""
-TODO: Create Choice for user to input
-- Our HD matrices
-    - xbc1
-    - xbe
-    - xbz
-- Their HD matrices
-    - recombinant lineage name
-- Their own aligned sequences
-    - recombinant lineage name
-"""
 parser = argparse.ArgumentParser()
 parser.add_argument("--input", help="Input Type")
 parser.add_argument("--mats", help="Custom Matrices")
@@ -26,6 +15,27 @@ args = parser.parse_args()
 
 
 def get_custom_hdmatrices(lineage, fname="sequence_counts.csv"):
+    """
+    Gets the Hamming distance matrices per country per gene type
+    from the user's custom input.
+    --------------------
+    Parameters:
+
+    lineage :   String
+        A string of the recombinant lineage being studied.
+    
+    fname   :   String, default = "sequence_counts.csv"
+        A string of the filename containing the number of sequences of the
+        recombinant and parent lineages per country.
+
+    
+    Returns:
+
+    countries_matrices  :   list
+        A 4-D list of dimension (NUM_COUNTRIES, NUM_GENE_TYPE, SAMPLES, SAMPLES), that
+        shows the Hamming distance matrices per gene type for each country.
+    """
+
     paths, codes, countries = get_custom_filepaths(lineage)
     df = pd.read_csv(fname)
     countries_matrices = []
@@ -43,6 +53,7 @@ def get_custom_hdmatrices(lineage, fname="sequence_counts.csv"):
         p2 = df.loc[c == df["country"]]["parent_two"]
 
         c_hds = []
+        # TODO: Currently path contains csv files for HDmats, not sequences; to fix for seqs.
         for p in paths[c]:
             ss = topone.get_sample_sequences(p)
             if "_recom_" in p:
@@ -81,6 +92,33 @@ def get_custom_hdmatrices(lineage, fname="sequence_counts.csv"):
 
 
 def get_custom_filepaths(lineage, fname="countries.csv"):
+    """
+    Gets the path of the Hamming distance matrices in
+    CSV file format provided by the user.
+    --------------------
+    Parameters:
+
+    lineage :   String
+        The name of the lineage being studied by the user.
+
+    fname   :   String, default = "countries.csv"
+        The filename of a CSV file containing the countries being studied and their
+        2-digit codes.
+
+    
+    Returns:
+
+    paths       :   list
+        A list of paths of the Hamming distance matrices in CSV file format
+        from recombinant, nonrecombinant, and mixed sequences.
+
+    codes       :   list
+        A list of the 2-character country codes of each country.
+
+    countries   :   list
+        A list of the names of each country being studied.
+    """
+    
     paths = []
 
     df = pd.read_csv(fname)
@@ -98,6 +136,29 @@ def get_custom_filepaths(lineage, fname="countries.csv"):
 
 
 def get_sample_filepaths(lineage):
+    """
+    Gets the filepaths used in the study, used as a sample to demonstrate
+    the results and how the pipelines in the study work.
+    --------------------
+    Parameters:
+
+    lineage :   String
+        The recombinant lineage being studied.
+
+    
+    Returns:
+    
+    paths       :   list
+        A list of paths of the Hamming distance matrices in CSV file format
+        from recombinant, nonrecombinant, and mixed sequences.
+
+    codes       :   list
+        A list of the 2-character country codes of each country.
+
+    countries   :   list
+        A list of the names of each country being studied.
+    """
+
     paths = []
 
     if lineage == "xbc.1":
@@ -128,18 +189,18 @@ def get_sample_filepaths(lineage):
     return paths, codes, countries
 
 
-"""
-TODO: filter down the choices according to user input
-"""
 def get_recom_dataframe(lineage, topone=None):
     """
-    Extract sequences from FASTA (r, nr, m)
-    HDMat
-    Fit Transform
-    Append HDMat..?
-    Append Homologies
+    Constructs the dataframe containing the birth and death time pairs of each
+    homology group per gene type per country.
+    --------------------
+    Parameters:
 
-    Create dataframe
+    lineage :   String
+        A string of the recombinant lineage being studied.
+
+    topone  :   TopONE, default = None
+        An object instance of the TopONE class.
     """
     gene_types = ["recom", "nonrecom", "mixed"]
 
@@ -149,13 +210,6 @@ def get_recom_dataframe(lineage, topone=None):
                         maxdim=2,
                         simulations=-1,
                         segsites=-1)
-
-    # filepath = fname
-    # seqs = topone.get_sample_sequences(fname)
-
-    # hdmat = topone.get_hdmatrices(seqs)
-
-    # hom = topone.fit_transform(hdmat)
 
     paths, codes, countries = get_sample_filepaths(lineage)
 
@@ -194,21 +248,6 @@ def get_recom_dataframe(lineage, topone=None):
                                         }])
                     df = pd.concat([df, row], ignore_index=True)
     df.to_csv(f"outputs/country_homologies_{lineage}.csv", index=False)
-
-    """
-    TODO: HDMATRICES INPUT
-    for each path
-        get the hdmatrices
-        apply fit_transform
-        append homologies
-
-    create the dataframe to outputs
-
-
-
-    TODO: SEQUENCES INPUT
-    see virseq.py
-    """
 
 
 def main():
