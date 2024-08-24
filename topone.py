@@ -301,6 +301,8 @@ class TopONE:
     
     def sparsity_sampling(self, sequences):
         """
+        Used exclusively for SEQTYPE SIM.
+
         Takes a fraction of sequences from the population of sequences, where each
         fraction or percentage to apply to the sequences is taken from "spalist", a
         list containing fractional values from 0.1 to 1.0 in 0.1 increments.
@@ -308,20 +310,14 @@ class TopONE:
         Parameters:
         
         sequences   :   list
-            [SEQTYPE - VIR] a 1-D list containing the list of viral sequences.
-                        
-            [SEQTYPE - SIM] a 2D list of dimension (SIMULATION, SAMPLES)
+            A 2D list of dimension (SIMULATION, SAMPLES)
             where each simulation contains the population of biallelic sequences.
 
             
         Returns:
         
         sparse_samples  :   list
-            [SEQTYPE - VIR] A 2-D list of dimension (10, SAMPLES),
-            where each element contains a fraction of the population of sequences
-            in varying values of sparsity.
-                        
-            [SEQTYPE - SIM] A 3-D list of dimension (10, SIMULATIONS, SAMPLES),
+            A 3-D list of dimension (10, SIMULATIONS, SAMPLES),
             where each element contains a fraction of the populations in each
             simulation with varying values of sparsity.
         """
@@ -332,8 +328,7 @@ class TopONE:
             sparse_samples = self.simseq.sparsity_sampling(sequences,
                                                            self.params)
         else:
-            sparse_samples = self.virseq.sparsity_sampling(sequences,
-                                                           self.params)
+            print("Error! This is used for simulated sequence types only.")
 
         return sparse_samples
     
@@ -341,6 +336,8 @@ class TopONE:
     
     def add_stochasticity(self, hdmatrices):
         """
+        Used exclusively for SEQTYPE SIM.
+
         Adds stochasticity or noise to the Hamming distance matrices. The noise is taken
         from a Normal distribution of mean = 0 and standard deviation of sqrt(var), where
         var is a value in the list "varlist" and is added to the original Hamming distance
@@ -349,19 +346,14 @@ class TopONE:
         Parameters:
 
         hdmatrices  :   list
-            [SEQTYPE - VIR] a 2-D HD matrix of dimension (SAMPLES, SAMPLES)
-                    
-            [SEQTYPE - SIM] a 3-D list of dimension (SIMULATION, SAMPLES, SAMPLES)
+            A 3-D list of dimension (SIMULATION, SAMPLES, SAMPLES)
             where each simulation has a 2-D matrix of dimension (SAMPLES, SAMPLES).
 
             
         Returns:
         
         hdmatrices_stoch    :   list
-            [SEQTYPE - VIR] a 3-D list of dimension (21, SAMPLES, SAMPLES),
-            where 21 HD matrices are made for every variance value.
-                        
-            [SEQTYPE - SIM] a 4-D list of dimension (21, SIMULATION, SAMPLES, SAMPLES)
+            A 4-D list of dimension (21, SIMULATION, SAMPLES, SAMPLES)
             where 21 HD matrices are made for every variance value, for each simulation.
         """
 
@@ -371,8 +363,7 @@ class TopONE:
             hdmatrices_stoch = self.simseq.add_stochasticity(hdmatrices,
                                                           self.params)
         else:
-            hdmatrices_stoch = self.virseq.add_stochasticity(hdmatrices,
-                                                          self.params)
+            print("Error! This is used for simulated sequence types only.")
             
         return hdmatrices_stoch
     

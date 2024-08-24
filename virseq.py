@@ -8,7 +8,18 @@ class VirSeq:
         pass
 
     """
-    Take a FASTA filename, and produce the list of sequences
+    Obtains the sequences from a FASTA file.
+    --------------------
+    Parameters:
+
+    fname   :   String
+        A string of the filename of the FASTA file.
+
+        
+    Returns:
+    
+    seqs    :   list
+        A list of strings containing the biological sequences.
     """
     def get_fasta_samples(self, fname):
         fasta_sequences = SeqIO.parse(open(fname),'fasta')
@@ -21,8 +32,22 @@ class VirSeq:
 
 
     """
-    Processes the raw files from FASTA
-    Returns a list of sequences
+    Processes the raw sequences from a FASTA file, removing a column across
+    all sequences if an unknown nucleotide is found in any of the sequences.
+    --------------------
+    Parameters:
+
+    fname   :   String
+        The filename of the FASTA file.
+
+    params  :   dictionary
+        The parameters containing attributes from the TopONE object.
+
+
+    Returns:
+
+    seqs    :   list
+        A list containing the processed sequences.
     """
     def get_sample_sequences(self, fname, params):
         ambuigities = ['R', 'Y', 'S', 'W', 'K', 'M',
@@ -53,15 +78,24 @@ class VirSeq:
     
 
     """
-    Produces the hamming distance matrices of a list of
-    viral sample sequences.
-
+    Creates the Hamming distance matrices from a list of
+    equal-length sequences.
+    --------------------
     Parameters:
-        simulations - a 1-D list of dimension (SAMPLES) containing the
-                        processed biological sequences from viral samples.
 
-    The function returns:
-        mat         - a 2-D matrix of dimension (SAMPLES, SAMPLES).
+    simulations :   list
+        A 1-D list of dimension containing the processed
+        equal-length biological sequences.
+
+    params  :   dictionary
+        The parameters containing attributes from the TopONE object.
+
+                    
+    Returns:
+    
+    mat :   list
+        A 2-D matrix of dimension (SAMPLES, SAMPLES) where each element
+        mat[i][j] represents the Hamming distance of sequences i and j.
     """
     def get_hdmatrices(self, sequences, params):
         # Construct the Hamming Distance Matrix
@@ -78,67 +112,3 @@ class VirSeq:
                 mat[j, i] = mat[i, j]
 
         return mat
-    
-    
-    """ 
-    Takes a fraction of sequences from the population of sequences.
-
-    Parameters:
-        sequences - a 1-D list containing the list of viral sequences.
-
-    Returns:
-        sparse_samples - a 2-D list of dimension (10, SAMPLES),
-                            where each element contains a fraction of
-                            the population of sequences in varying
-                            values of sparsity.
-    """
-    def sparsity_sampling(self, group, params):
-        # (SPARSITY, SAMPLESIZES)
-        sparse_samples = []
-
-        for p in params["SPALIST"]:
-            sample_size = int(params["SAMPLES"] * p)
-            sampled_seq = rand.sample(group[0], sample_size)
-            sparse_samples.append(sampled_seq)
-
-        return sparse_samples
-    
-
-    """
-    Adds varying stochasticity or noise to the Hamming Distance (HD) matrices
-    present in every simulation.
-
-    Parameters:
-        hdmatrices - a 2-D HD matrix of dimension (SAMPLES, SAMPLES)
-
-    Returns:
-        returned_data - a 3-D list of dimension (21, SAMPLES, SAMPLES),
-                        where 21 HD matrices are made for every variance value.
-    """
-    def add_stochasticity(self, hdmatrices, params):
-        # Prepare the stochasticity matrix
-        noise_list = []
-        for var in params["VARLIST"]:
-            noise_list.append(np.random.normal(0,
-                                               var,
-                                               (params["SAMPLES"],
-                                                params["SAMPLES"])))
-
-        # Add the stochasticity matrix to the HD matrices
-        noisymat_list = []
-        for noise in noise_list:
-            # Ensure all diagonals are 0
-            noise_mat = hdmatrices + noise
-            idx = np.diag_indices_from(noise_mat)
-            noise_mat[idx] = 0
-            noisymat_list.append(noise_mat)
-
-        return noisymat_list
-    
-
-    """
-    TODO:
-    Get all hdmatrices and homologies in the HD matrix
-    """
-    def get_all_homologies():
-        pass
