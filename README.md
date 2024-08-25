@@ -53,10 +53,10 @@ Once the sequences have been processed, we continue a similar pipeline as shown 
 After obtaining the birth and death times, they are used for statistical analysis by using the Kruskal-Wallis Test and Independent Mann-Whitney U Test at a 5% level of significance.
 
 ## Data
-### ms
+### `ms`-generated Sequences
 The simulated samples were generated from `ms`. These sequences are in a biallelic format, where the characters in a sequence are `1` or `0` only.
 
-### GISAID
+### GISAID SARS-CoV-2 Sequences
 The virus sequence samples, specifically SARS-CoV-2 samples, were taken from the GISAID database. Three recombinant lineages and their parent lineages were taken across different countries. The table below shows the lineages used and the countries whose samples were used:
 
 | Recombinant Lineage | Parent Lineage 1 | Parent Lineage 2 | Countries

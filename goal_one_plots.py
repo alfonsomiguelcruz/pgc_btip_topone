@@ -58,7 +58,7 @@ def get_single_plot(nsam, theta, rho):
                 # Chromosomal length
                 "SEGSITES": 300,
                 # Filename of the input text file
-                "FNAME": 'sims_'+ f"n{nsam}_" + f"t{theta}_" + f"r{rho}" +'.txt'
+                "FNAME": 'inputs/simseq/sims_'+ f"n{nsam}_" + f"t{theta}_" + f"r{rho}" +'.txt'
             }
 
 
