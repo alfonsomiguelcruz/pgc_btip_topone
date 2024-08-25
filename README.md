@@ -22,8 +22,10 @@ Command for Execution: `pip install -r requirements.txt`
 
 ## Pipelines
 ### Goal 01: Is topology robust to noise and sparse genomic samples?
-![goal01_pipeline](./imgs/goal01_pipeline.png)
+<!-- ![goal01_pipeline](./imgs/goal01_pipeline.png) -->
+<a href="url"><img src="https://github.com/alfonsomiguelcruz/pgc_btip_topone/blob/main/imgs/goal01_pipeline.png" height="48" width="48" ></a>
 
+Text Here
 
 ### Goal 02: Does recombination change the topology of genomic samples?
 ![goal01_pipeline](./imgs/goal02_pipeline.png)
