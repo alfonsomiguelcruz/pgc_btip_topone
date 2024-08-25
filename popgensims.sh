@@ -7,18 +7,15 @@ nsites=2501             # loci or number of (recomb?) sites
 segsites=300            # length per sample
 
 # Define theta and rho values
-theta=(50 500 5000) # 4 N_0 \mu
-rho=(4 12 36 72 144) # 4 N_0 r
-
-# Ensure Sims directory exists
-mkdir -p final_sims
+theta=(50 500 5000)     # 4 N_0 \mu
+rho=(4 12 36 72 144)    # 4 N_0 r
 
 # Loop through each combination of theta and rho and nsam
 for nsam in "${nsam[@]}"; do
     for theta in "${theta[@]}"; do
         for rho in "${rho[@]}"; do
             # Define output file name
-            output_file="final_sims/sims_n${nsam}_t${theta}_r${rho}.txt"
+            output_file="inputs/simseq/sims_n${nsam}_t${theta}_r${rho}.txt"
 
             # Run the command with theta and rho values
             ./ms $nsam $nreps -t $theta -s $segsites -r $rho $nsites > $output_file

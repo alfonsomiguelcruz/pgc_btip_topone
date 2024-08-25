@@ -67,6 +67,12 @@ The virus sequence samples, specifically SARS-CoV-2 samples, were taken from the
 
 ## Execution
 ### Goal 01: Is topology robust to noise and sparse genomic samples?
+Before generating the sequences, ensure that the software `ms` is inside this directory. To generate the simulated sequences, run the command on your terminal:
+
+`./popgensims.sh`
+
+to generate simulated sequences at differing values of mutation and recombination rates, and number of samples. The output of the simulated sequences are found at the [simseq](inputs/simseq/) folder. Once the sequences have been generated, the plots can now be created.
+
 The script `goal_one_plots.py` uses simulated sequence data to produce the plots necessary to answer this question.
 
 To execute the script, simply execute `python goal_one_plots.py` on your command line with any of the following arguments:
