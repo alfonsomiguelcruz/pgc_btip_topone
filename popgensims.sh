@@ -1,10 +1,10 @@
 #!/bin/bash
 
 # Parameter setting
-nsam=(100 1000 10000) # no. of samples and the hypothesize pop size (as assumed)
-nreps=500 # no. of repetitions or simulations
-nsites=2501 # loci or number of (recomb?) sites
-segsites=300 #length per sample
+nsam=(100 1000 10000)   # no. of samples and the hypothesize pop size (as assumed)
+nreps=500               # no. of repetitions or simulations
+nsites=2501             # loci or number of (recomb?) sites
+segsites=300            # length per sample
 
 # Define theta and rho values
 theta=(50 500 5000) # 4 N_0 \mu
