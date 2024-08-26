@@ -90,7 +90,7 @@ The script `goal_one_plots.py` uses simulated sequence data to produce the plots
 
 To execute the script, simply execute `python goal_one_plots.py` on your command line with any of the following arguments:
 
-- `--get-one-plot`: gets one PDF file containing two plots: the variance and sparsity plots. Using this argument must also require the use of three additional arguments:
+- `--get-one-plot`: gets one PDF file containing two plots: the variance and sparsity plots. Using this argument must also require the use of five additional arguments:
     
     - `-nreps`: number of simulations in the file
     - `-nsite`: number of segregating sites (sample length)
@@ -98,7 +98,13 @@ To execute the script, simply execute `python goal_one_plots.py` on your command
     - `-t`: mutation rate $\theta$
     - `-r`: recombination rate $\rho$
 
-- `--get-all-plots`: gets all PDF files containing the variance and sparsity plots, across every combination of possible simulated sample sizes, mutation rates, and recombination rates
+- `--get-all-plots`: gets all PDF files containing the variance and sparsity plots, across every combination of possible simulated sample sizes, mutation rates, and recombination rates. Using this argument must also require the use of five additional arguments:
+
+    - `-nreps`: number of simulations in the file
+    - `-nsite`: number of segregating sites (sample length)
+    - `-ns`: list of simulated sample sizes
+    - `-ts`: list of mutation rates
+    - `-rs`: list of recombination rates
 
 - `--verbose`: Optional argument that outputs the logs the start and end of each step in the script.
 
@@ -106,7 +112,7 @@ To execute the script, simply execute `python goal_one_plots.py` on your command
 Some sample commands are shown below:
 
 - `python goal_one_plots.py --get-one-plot -nreps 50 -nsite 300 -nsam 100 -t 50 -r 72 --verbose`
-- `python goal_one_plots.py --get-all-plots`
+- `python goal_one_plots.py --get-all-plots -nreps 50 -nsite 300 -ns 100 1000 -ts 50 500 -rs 4 12 36 72 144`
 
 
 ### Goal 02: Does recombination change the topology of genomic samples?
