@@ -99,7 +99,7 @@ class plot_diagrams:
 
 
     @classmethod
-    def plot_lines(self, ax, params, topoquant, xlab, ylab, main):
+    def plot_lines(self, ax, params, topoquant, xlab, ylab, main, lt):
         colors = {
             0: '#013366',  # H0
             1: '#ea7334',  # H1
@@ -110,14 +110,14 @@ class plot_diagrams:
             all_sims = []
 
             for sim_idx in range(params["SIMULATIONS"]):
-                y = [topoquant[i][sim_idx][hom] for i in range(len(params["VARLIST"]))]
+                y = [topoquant[i][sim_idx][hom] for i in range(len(params[lt]))]
 
-                ax.plot(params["VARLIST"], y, color=colors[hom],
+                ax.plot(params[lt], y, color=colors[hom],
                         alpha=0.4, linestyle='-', marker='o')
                 all_sims.append(y)
             
             # Calculate the mean and confidence interval for the trend line
-            self.add_trend_line_with_ci(ax, params["VARLIST"], np.array(all_sims), colors[hom])
+            self.add_trend_line_with_ci(ax, params[lt], np.array(all_sims), colors[hom])
             
             # Add a legend entry for each homology dimension
             ax.plot([], [], color=colors[hom], label=f'$H_{hom}$')
@@ -127,18 +127,35 @@ class plot_diagrams:
 
 
     @classmethod
-    def plot_topoquant_diagram(self, params, bn, blm, blv, save_as_pdf, pdf):
+    def plot_topoquant_diagram(self, params, bn, blm, blv, lt, save_as_pdf, pdf):
         fig, axs = plt.subplots(1, 3, figsize=(21, 7)) 
+        main_lab = 'Betti Numbers vs. '
+        mbcl_lab = 'Barcode Length Mean vs. '
+        vbcl_lab = 'Barcode Length Variance vs. '
 
-        self.plot_lines(axs[0], params, bn, xlab='Error Variance',
-                        ylab='Betti Numbers', main='Betti Numbers vs. Variance')
-        self.plot_lines(axs[1], params, blm, xlab='Error Variance',
-                        ylab='Mean Barcode Lengths', main='Mean Barcode Lengths vs. Variance')
-        self.plot_lines(axs[2], params, blv, xlab='Error Variance',
-                        ylab='Barcode Lengths Variance', main='Barcode Lengths Variance vs. Variance')
+        if lt == "SPALIST":
+            plot_xlab = 'Sampling Ratio'
+            main_lab += "Sampling Ratio"
+            mbcl_lab += "Sampling Ratio"
+            vbcl_lab += "Sampling Ratio"
+        else:
+            plot_xlab = 'Error Variance'
+            main_lab += "Error Variance"
+            mbcl_lab += "Error Variance"
+            vbcl_lab += "Error Variance"
+
+        self.plot_lines(axs[0], params, bn, xlab=plot_xlab,
+                        ylab='Betti Numbers', main=main_lab, lt=lt)
+        self.plot_lines(axs[1], params, blm, xlab=plot_xlab,
+                        ylab='Mean Barcode Lengths', main=mbcl_lab, lt=lt)
+        self.plot_lines(axs[2], params, blv, xlab=plot_xlab,
+                        ylab='Barcode Lengths Variance', main=vbcl_lab, lt=lt)
 
         # Add a main title for the entire figure
-        fig.suptitle('Topological Quantities at Varying Errors', fontsize=16)
+        if lt == "SPALIST":
+            fig.suptitle('Topological Quantities at Varying Sampling Ratios', fontsize=16)
+        else:
+            fig.suptitle('Topological Quantities at Varying Errors', fontsize=16)
 
         # Create a single legend for the entire figure
         handles, labels = axs[0].get_legend_handles_labels()

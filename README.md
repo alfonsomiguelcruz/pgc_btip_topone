@@ -116,9 +116,10 @@ pgc_btip_topone
           ├── sequence_recom_unaligned.fasta
           ├── sequence_nonrecom_unaligned.fasta
           └── sequence_mixed_unaligned.fasta
-└── outputs
-     ├── ...
      └── your_output_folder_here
+          ├── sequence_recom_aligned.fasta
+          ├── sequence_nonrecom_aligned.fasta
+          └── sequence_mixed_aligned.fasta
 ├── wuhan_reference_genome.fasta
 ├── nextclade_align_sequences.sh
 └── nextclade-x86_64-unknown-linux-gnu

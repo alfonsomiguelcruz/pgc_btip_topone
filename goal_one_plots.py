@@ -15,7 +15,7 @@ args = parser.parse_args()
 
 if args.verbose:
     logging.basicConfig(
-        level=logging.DEBUG
+        level=logging.INFO
     )
 else:
     logging.basicConfig(
@@ -46,7 +46,7 @@ def get_single_plot(nsam, theta, rho):
     """
     
     # Variables for the PDF file of the topological quantity plots
-    pdf_fname = 'plots_'+ f"n{nsam}_" + f"t{theta}_" + f"r{rho}" +'.pdf'
+    pdf_fname = 'outputs/plots_'+ f"n{nsam}_" + f"t{theta}_" + f"r{rho}" +'.pdf'
     pdf = PdfPages(pdf_fname)
 
     # Parameters of the simulations
@@ -54,17 +54,17 @@ def get_single_plot(nsam, theta, rho):
                 # Number of lines/chromosomes per simulation
                 "SAMPLES": nsam,
                 # Number of simulations in the file
-                "SIMULATIONS": 50,
+                "SIMULATIONS": 4,
                 # Chromosomal length
-                "SEGSITES": 300,
+                "SEGSITES": 100,
                 # Filename of the input text file
                 "FNAME": 'inputs/simseq/sims_'+ f"n{nsam}_" + f"t{theta}_" + f"r{rho}" +'.txt'
             }
 
 
     # Filenames for the variance and sparsity CSV files with the topological quantities
-    var_fname = 'v_'+ f"n{nsam}_" + f"t{theta}_" + f"r{rho}" + ".csv"
-    samp_fname = 's_'+ f"n{nsam}_" + f"t{theta}_" + f"r{rho}" + ".csv"
+    var_fname = 'outputs/v_'+ f"n{nsam}_" + f"t{theta}_" + f"r{rho}" + ".csv"
+    samp_fname = 'outputs/s_'+ f"n{nsam}_" + f"t{theta}_" + f"r{rho}" + ".csv"
 
     # Instantiate the TopONE object
     topone = TopONE(samples=params["SAMPLES"],
@@ -103,16 +103,22 @@ def get_single_plot(nsam, theta, rho):
     log.info("[START] Get Hamming Distance Matrices from Sparse Populations")
     sparse_hdmats = []
     for s in range(len(topone.spalist)):
-        sim_hdmats = []
-        # Get simulations per sparsity (50)
-        print(len(sparse_samples[s]))
-        for i in range(len(sparse_samples[s])):
-            sequences = sparse_samples[s][i]  # Get the sequences at this sampling ratio
-            hdmats = topone.get_hdmatrices(sequences)  # Compute the Hamming distance matrix
-            sim_hdmats.append(hdmats)  # Append the list of matrices for this simulation to the main list    
-        sparse_hdmats.append(sim_hdmats)
-    log.info("[END] Get Hamming Distance Matrices from Sparse Populations")
+        sequences = sparse_samples[s]
+        hdmats = topone.get_hdmatrices(sequences)
+        sparse_hdmats.append(hdmats)
 
+        # sim_hdmats = []
+        # Get simulations per sparsity
+        print(s)
+        # for i in range(len(sparse_samples[s])):
+        #     sequences = sparse_samples[s][i]  # Get the sequences at this sampling ratio
+        #     hdmats = topone.get_hdmatrices(sequences)  # Compute the Hamming distance matrix
+        #     sim_hdmats.append(hdmats)  # Append the list of matrices for this simulation to the main list    
+        # sparse_hdmats.append(sim_hdmats)
+    log.info("[END] Get Hamming Distance Matrices from Sparse Populations")
+    print(len(sparse_hdmats))           # 10
+    print(len(sparse_hdmats[0]))        # 4
+    print(sparse_hdmats[0][0].shape)    # (5, 5)
 
     # Get the homologies of noisy Hamming distance matrices
     # TODO: dim
@@ -154,10 +160,10 @@ def get_single_plot(nsam, theta, rho):
     # Create the topological quantity plots from Hamming distance matrices
     # that are noisy or matrices from sparse populations, enclosed in one PDF file
     log.info("[START] Create the Topological Quantity Plots from Noisy Matrices")
-    topone.plot_topoquant_diagram(bettis_v, mean_barcode_lengths_v, var_barcode_lengths_v, True, pdf)
+    topone.plot_topoquant_diagram(bettis_v, mean_barcode_lengths_v, var_barcode_lengths_v, "VARLIST", True, pdf)
     log.info("[END] Create the Topological Quantity Plots from Noisy Matrices")
     log.info("[START] Create the Topological Quantity Plots from Sparse Populations")
-    topone.plot_topoquant_diagram(bettis_s, mean_barcode_lengths_s, var_barcode_lengths_s, True, pdf_fname)
+    topone.plot_topoquant_diagram(bettis_s, mean_barcode_lengths_s, var_barcode_lengths_s, "SPALIST", True, pdf)
     pdf.close()
     log.info("[END] Create the Topological Quantity Plots from Sparse Populations")
 

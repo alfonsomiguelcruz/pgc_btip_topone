@@ -485,6 +485,7 @@ class TopONE:
     def plot_topoquant_diagram(self, betti_numbers,
                                barcode_mean_length,
                                barcode_vars_length,
+                               list_type,
                                save_as_pdf=False,
                                pdf_fname=None):
         """
@@ -513,6 +514,7 @@ class TopONE:
                                              betti_numbers,
                                              barcode_mean_length,
                                              barcode_vars_length,
+                                             list_type,
                                              save_as_pdf,
                                              pdf_fname)
         
