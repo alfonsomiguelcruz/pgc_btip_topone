@@ -494,20 +494,30 @@ class TopONE:
         --------------------
         Parameters:
 
-        betti_numbers       :   list
-            XXX
+        betti_nums          :   list
+            A 3-D list of dimension (21/10, SIMULATIONS, MAXDIM+1), where for every
+            value of variance (21) or sparsity (10), each simulation has a
+            list of length (MAXDIM+1) containing the Betti numbers of each homology group.
 
         barcode_mean_length :   list
-            XXX
+            A 3-D list of dimension (21/10, SIMULATIONS, MAXDIM+1), where for every
+            value of variance (21) or sparsity (10), each simulation has a list of length
+            (MAXDIM+1) containing the barcode length mean for each homology group.
 
         barcode_vars_length :   list
-            XXX
+            A 3-D list of dimension (21/10, SIMULATIONS, MAXDIM+1), where for every
+            value of variance (21) or sparsity (10), each simulation has a list of length
+            (MAXDIM+1) containing the barcode length variance for each homology group.
 
-        save_as_pdf :   Boolean, default = False
+        list_type           :   String
+            A string that determines whether the dataframe will use values from
+            the varlist ("VARLIST") or spalist ("SPALIST").
+
+        save_as_pdf         :   Boolean, default = False
             A Boolean value dictating whether the plot should be saved in
             a PDF file or be displayed as is.
 
-        pdf_fname   :   String, default = None
+        pdf_fname           :   String, default = None
             A String containing the filename of the plots in a PDF file format.
         """
         plot_diagrams.plot_topoquant_diagram(self.params,
@@ -530,14 +540,20 @@ class TopONE:
         --------------------
         Parameters:
         
-        betti_numbers       :   list
-            XXX
-        
+        betti_nums          :   list
+            A 3-D list of dimension (21/10, SIMULATIONS, MAXDIM+1), where for every
+            value of variance (21) or sparsity (10), each simulation has a
+            list of length (MAXDIM+1) containing the Betti numbers of each homology group.
+
         barcode_mean_length :   list
-            XXX
+            A 3-D list of dimension (21/10, SIMULATIONS, MAXDIM+1), where for every
+            value of variance (21) or sparsity (10), each simulation has a list of length
+            (MAXDIM+1) containing the barcode length mean for each homology group.
 
         barcode_vars_length :   list
-            XXX
+            A 3-D list of dimension (21/10, SIMULATIONS, MAXDIM+1), where for every
+            value of variance (21) or sparsity (10), each simulation has a list of length
+            (MAXDIM+1) containing the barcode length variance for each homology group
         
         list_type           :   String
             A string that determines whether the dataframe will use values from
