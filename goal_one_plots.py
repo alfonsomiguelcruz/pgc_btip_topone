@@ -5,12 +5,15 @@ import logging
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--get-one-plot", action='store_true', help="Flag to Get One Plot only")
-parser.add_argument("-nreps", type=int, help="Argument for the Number of Simulations")
-parser.add_argument("-nsite", type=int, help="Argument for the Number of Segregating Sites")
-parser.add_argument("-nsam", type=int, help="Argument for the Number of Samples")
-parser.add_argument("-t", type=int, help="Argument for the Mutation Rate (Theta)")
-parser.add_argument("-r", type=int, help="Argument for the Recombination Rate (Rho)")
+parser.add_argument("-nreps", type=int, nargs=1, help="Argument for the Number of Simulations")
+parser.add_argument("-nsite", type=int, nargs=1, help="Argument for the Number of Segregating Sites")
+parser.add_argument("-nsam", type=int, nargs=1, help="Argument for the Number of Samples")
+parser.add_argument("-t", type=int, nargs=1, help="Argument for the Mutation Rate (Theta)")
+parser.add_argument("-r", type=int, nargs=1, help="Argument for the Recombination Rate (Rho)")
 parser.add_argument("--get-all-plots", action='store_true', help="Flag to Get All Plots")
+parser.add_argument("-ns", type=int, nargs="+", help="Argument for Multiple Number of Samples")
+parser.add_argument("-ts", type=int, nargs="+", help="Argument for Multiple Mutation Rates (Theta)")
+parser.add_argument("-rs", type=int, nargs="+", help="Argument for Multiple Recombination Rates (Rho)")
 parser.add_argument("--verbose", action='store_true', help="Increases Logging of Messages")
 
 args = parser.parse_args()
@@ -169,7 +172,14 @@ def get_single_plot(nreps, nsite, nsam, theta, rho):
 
 def main():
     if args.get_one_plot and not(args.get_all_plots):
-        if args.nreps != None and args.nsite != None and args.nsam != None and args.t != None and args.r != None:
+        if args.nreps != None and \
+           args.nsite != None and \
+           args.nsam  != None and \
+           args.t     != None and \
+           args.r     != None and \
+           args.ns    == None and \
+           args.ts    == None and \
+           args.rs    == None:
             get_single_plot(args.nreps, args.nsite, args.nsam, args.t, args.r)
         else:
             if args.nreps == None:
@@ -182,9 +192,42 @@ def main():
                 print("Error! Please indicate the argument for the mutation rate (theta).")
             if args.r == None:
                 print("Error! Please indicate the argument for the recombination rate (rho).")
+            if args.ns != None:
+                print("Error! Multiple number of samples is available for --get-all-plots only.")
+            if args.ts != None:
+                print("Error! Multiple mutation rates is available for --get-all-plots only.")
+            if args.rs != None:
+                print("Error! Multiple recombination rates is available for --get-all-plots only.")
     elif not(args.get_one_plot) and args.get_all_plots:
-        pass # Get all plots (nsam X theta X rho)
-        # TODO: Do loop for plots
+        if args.ns    != None and \
+           args.ts    != None and \
+           args.rs    != None and \
+           args.nreps != None and \
+           args.nsite != None and \
+           args.nsam  == None and \
+           args.t     == None and \
+           args.r     == None:
+            for n in args.ns:
+                for t in args.ts:
+                    for r in args.rs:
+                        get_single_plot(args.nreps, args.nsite, n, t, r)
+        else:
+            if args.nreps == None:
+                print("Error! Please indicate the argument for the number of simulations.")
+            if args.nsite == None:
+                print("Error! Please indicate the argument for the number of segregation sites.")
+            if args.nsam != None:
+                print("Error! Single number of sample value is used only for --get-one-plot only.")
+            if args.t != None:
+                print("Error! Single mutation rate value is used only for --get-one-plot only.")
+            if args.r != None:
+                print("Error! Single recombination rate value is used only for --get-one-plot only.")
+            if args.ns == None:
+                print("Error! Please indicate the argument for the different number of samples.")
+            if args.ts == None:
+                print("Error! Please indicate the argument for the different mutation rates (theta).")
+            if args.rs == None:
+                print("Error! Please indicate the argument for the different recombination rates (rho).")
     elif args.get_one_plot == args.get_all_plots:
         print("Error: Both options chosen. Please choose one option only.")
 
