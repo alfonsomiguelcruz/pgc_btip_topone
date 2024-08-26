@@ -93,8 +93,36 @@ Some sample commands are shown below:
 - `python goal_one_plots.py --get-one-plot -n 100 -t 50 -r 72 --verbose`
 - `python goal_one_plots.py --get-all-plots`
 
+
 ### Goal 02: Does recombination change the topology of genomic samples?
 The script `goal_two_plots.py` uses the GISAID sequence data to produce the data required for the plots and for the statistical analysis.
+
+The user can also provide their own input data, whether it is viral sequences or Hamming distance matrices. However, they must be stored in a folder inside the `inputs` directory.
+
+```
+pgc_btip_topone
+└── inputs
+     ├── ...
+     └── your_input_folder_here
+```
+
+If the user has raw sequence data, they can use the Nextclade CLI to align sequences against the Wuhan reference genome. To get the aligned sequences, use the script `nextclade_align_seqeuences.sh` to align sequences in bulk. Ensure that this is the project structure to read the inputs and write the outputs at the right directories:
+
+```
+pgc_btip_topone
+└── inputs
+     ├── ...
+     └── your_input_folder_here
+          ├── sequence_recom_unaligned.fasta
+          ├── sequence_nonrecom_unaligned.fasta
+          └── sequence_mixed_unaligned.fasta
+└── outputs
+     ├── ...
+     └── your_output_folder_here
+├── wuhan_reference_genome.fasta
+├── nextclade_align_sequences.sh
+└── nextclade-x86_64-unknown-linux-gnu
+```
 
 To execute the script, simply execute `python goal_two_plots.py` on your command line with any of the following arguments:
 
