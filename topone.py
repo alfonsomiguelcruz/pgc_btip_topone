@@ -1,9 +1,5 @@
-import re 
 import numpy as np
 import pandas as pd
-import random as rand
-import matplotlib.pyplot as plt
-from scipy.spatial import distance
 from ripser import Rips
 from simseq import SimSeq
 from virseq import VirSeq
@@ -40,7 +36,6 @@ class TopONE:
 
         segsites    : int, default = None
             Number of segregating sites in an input file.
-            TODO: change name of segsites to seq_length
         """
         # Assign class variables to instantiation parameters
         self.SAMPLES = samples

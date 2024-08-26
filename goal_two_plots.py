@@ -1,5 +1,4 @@
 from topone import TopONE
-from virseq import Virseq
 import argparse
 import logging
 import random

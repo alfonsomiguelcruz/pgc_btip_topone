@@ -28,27 +28,10 @@ class plot_diagrams:
             y = hom[i][:, 1]
             ax_main.scatter(x, y, s=10, label=labels[i])
 
-            # TODO: Add line on top of histogram (?)
-            # xymax = max(np.max(np.abs(x)), np.max(np.abs(y)))
-            # binwidth = 0.1
-            # lim = (int(xymax/binwidth) + 1) * binwidth
-            # bins = np.arange(-lim, lim + binwidth, binwidth)
-
-            # # Compute KDE
-            # x_gaussian_kde = gaussian_kde(x, bw_method=0.25)  # Adjust bandwidth as needed
-            # x_kde = np.linspace(min(x), max(x), 1000)
-            # x_kde_pdf = kde(x_kde)
-            
-            # y_gaussian_kde = gaussian_kde(y, bw_method=0.25)  # Adjust bandwidth as needed
-            # y_kde = np.linspace(min(y), max(y), 1000)
-            # y_kde_pdf = kde(y_kde)
-
             if i != 0:
                 ax_hisx.hist(x, bins=5, alpha=0.5, density=True, color=colors[i])
-            # ax_hisx.plot(x_kde, x_kde_pdf)
 
             ax_hisy.hist(y, bins=5, alpha=0.5, density=True, orientation='horizontal', color=colors[i])
-            # ax_hisy.plot(y_kde_pdf, y_kde)
 
         fig.suptitle(title)
         fig.legend()
@@ -90,9 +73,6 @@ class plot_diagrams:
         coefficients = np.polyfit(x, mean_y, 1)
         polynomial = np.poly1d(coefficients)
         trend_line = polynomial(x)
-
-        # Plot the trend line
-        # ax.plot(x, trend_line, color=color, linestyle='-', linewidth=2)
 
         # Plot the confidence interval
         ax.fill_between(x, trend_line - ci, trend_line + ci, color=color, alpha=alpha)

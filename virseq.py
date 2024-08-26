@@ -1,5 +1,4 @@
 import numpy as np
-import random as rand
 from scipy.spatial import distance
 from Bio import SeqIO
 
