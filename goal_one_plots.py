@@ -121,13 +121,13 @@ def get_single_plot(nsam, theta, rho):
     print(sparse_hdmats[0][0].shape)    # (5, 5)
 
     # Get the homologies of noisy Hamming distance matrices
-    # TODO: dim
+    # dim: (21, SIMULATIONS, MAXDIM+1, X)
     log.info("[START] Get All Homologies from Noisy Matrices")
     varshom = topone.get_all_homologies(stochmatrices)
     log.info("[END] Get All Homologies from Noisy Matrices")
 
     # Get the topological quantities from noisy Hamming distance matrices
-    # TODO: dim
+    # dim: (21, SIMULATIONS, MAXDIM+1) for all 3 quantities
     log.info("[START] Get All Topological Quantities from Noisy Matrices")
     bettis_v, mean_barcode_lengths_v, var_barcode_lengths_v = topone.get_all_topoquants(varshom)
     log.info("[END] Get All Topological Quantities from Noisy Matrices")
@@ -140,13 +140,13 @@ def get_single_plot(nsam, theta, rho):
     
 
     # Get the homologies of Hamming distance matrices from sparse populations
-    # TODO: dim
+    # dim: (10, SIMULATIONS, MAXDIM+1, X)
     log.info("[START] Get All Homologies from Sparse Populations")
     sparsehom = topone.get_all_homologies(sparse_hdmats)
     log.info("[END] Get All Homologies from Sparse Populations")
     
     # Get the topological quantities from Hamming distance matrices from sparse populations
-    # TODO: dim
+    # dim: (10, SIMULATIONS, MAXDIM+1) for all 3 quantities
     log.info("[START] Get All Topological Quantities from Sparse Populations")
     bettis_s, mean_barcode_lengths_s, var_barcode_lengths_s = topone.get_all_topoquants(sparsehom)
     log.info("[END] Get All Topological Quantities from Sparse Populations")
