@@ -5,7 +5,9 @@ import logging
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--get-one-plot", action='store_true', help="Flag to Get One Plot only")
-parser.add_argument("-n", type=int, help="Argument for the Number of Samples")
+parser.add_argument("-nreps", type=int, help="Argument for the Number of Simulations")
+parser.add_argument("-nsite", type=int, help="Argument for the Number of Segregating Sites")
+parser.add_argument("-nsam", type=int, help="Argument for the Number of Samples")
 parser.add_argument("-t", type=int, help="Argument for the Mutation Rate (Theta)")
 parser.add_argument("-r", type=int, help="Argument for the Recombination Rate (Rho)")
 parser.add_argument("--get-all-plots", action='store_true', help="Flag to Get All Plots")
@@ -24,7 +26,7 @@ else:
 
 log = logging.getLogger("TOPOne")
 
-def get_single_plot(nsam, theta, rho):
+def get_single_plot(nreps, nsite, nsam, theta, rho):
     """
     Gets the topological quantity plots for a given group of simulations
     that shows the trends of the quantities when adding noise or increasing
@@ -34,6 +36,12 @@ def get_single_plot(nsam, theta, rho):
     per simulation used in the plots.
     --------------------
     Parameters:
+
+    nreps   : int
+        The number of simulations in a file.
+
+    nsite   : int
+        The number of segregating sites in a sequence.
 
     nsam    : int
         The number of samples per simulation.
@@ -54,9 +62,9 @@ def get_single_plot(nsam, theta, rho):
                 # Number of lines/chromosomes per simulation
                 "SAMPLES": nsam,
                 # Number of simulations in the file
-                "SIMULATIONS": 4,
+                "SIMULATIONS": nreps,
                 # Chromosomal length
-                "SEGSITES": 100,
+                "SEGSITES": nsite,
                 # Filename of the input text file
                 "FNAME": 'inputs/simseq/sims_'+ f"n{nsam}_" + f"t{theta}_" + f"r{rho}" +'.txt'
             }
@@ -106,19 +114,8 @@ def get_single_plot(nsam, theta, rho):
         sequences = sparse_samples[s]
         hdmats = topone.get_hdmatrices(sequences)
         sparse_hdmats.append(hdmats)
-
-        # sim_hdmats = []
-        # Get simulations per sparsity
-        print(s)
-        # for i in range(len(sparse_samples[s])):
-        #     sequences = sparse_samples[s][i]  # Get the sequences at this sampling ratio
-        #     hdmats = topone.get_hdmatrices(sequences)  # Compute the Hamming distance matrix
-        #     sim_hdmats.append(hdmats)  # Append the list of matrices for this simulation to the main list    
-        # sparse_hdmats.append(sim_hdmats)
     log.info("[END] Get Hamming Distance Matrices from Sparse Populations")
-    print(len(sparse_hdmats))           # 10
-    print(len(sparse_hdmats[0]))        # 4
-    print(sparse_hdmats[0][0].shape)    # (5, 5)
+
 
     # Get the homologies of noisy Hamming distance matrices
     # dim: (21, SIMULATIONS, MAXDIM+1, X)
@@ -172,10 +169,14 @@ def get_single_plot(nsam, theta, rho):
 
 def main():
     if args.get_one_plot and not(args.get_all_plots):
-        if args.n != None and args.t != None and args.r != None:
-            get_single_plot(args.n, args.t, args.r)
+        if args.nreps != None and args.nsite != None and args.nsam != None and args.t != None and args.r != None:
+            get_single_plot(args.nreps, args.nsite, args.nsam, args.t, args.r)
         else:
-            if args.n == None:
+            if args.nreps == None:
+                print("Error! Please indicate the argument for the number of simulations.")
+            if args.nsite == None:
+                print("Error! Please indicate the argument for the number of segregation sites.")
+            if args.nsam == None:
                 print("Error! Please indicate the argument for the number of samples.")
             if args.t == None:
                 print("Error! Please indicate the argument for the mutation rate (theta).")
