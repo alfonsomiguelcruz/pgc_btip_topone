@@ -9,7 +9,7 @@ The project's repository makes use of scripts and sequence files to answer the q
 
 ## Installation
 ### Population Genetics Software `ms`
-`ms` is a population genetics software that generates samples under different models. The source code and software manual containing the installation instructions are found [here](https://uchicago.app.box.com/s/l3e5uf13tikfjm7e1il1eujitlsjdx13).
+`ms` is a population genetics software that generates samples under different models. The source code and software manual containing the installation and compilation instructions are found [here](https://uchicago.app.box.com/s/l3e5uf13tikfjm7e1il1eujitlsjdx13).
 
 ### Sequence Alignment Software `nextclade`
 Nextclade is an online [web application](https://clades.nextstrain.org/) bioinformatics tool to align sequences and conduct phylogenetic analyses. It also has a CLI version found [here](https://docs.nextstrain.org/projects/nextclade/en/stable/user/nextclade-cli/installation/standalone.html), which performs the same functionalities as the web application version. Download the the latest version of the software based on your architecture (i.e. x86-64) and operating system.
@@ -67,7 +67,20 @@ The virus sequence samples, specifically SARS-CoV-2 samples, were taken from the
 
 ## Execution
 ### Goal 01: Is topology robust to noise and sparse genomic samples?
-Before generating the sequences, ensure that the software `ms` is inside this directory. Before generating the sequences, convert the shell script into an executable file using the command: `chmod +x popgensims.sh`. To generate the simulated sequences at differing values of mutation and recombination rates, and number of samples, run the command on your terminal:
+Before generating the sequences, ensure that the software `ms` and the shell script `popgensims.sh` belong in the same directory, and the directory `inputs/simseq/` is also present as shown below:
+
+```
+pgc_btip_topone
+└── inputs
+     ├── ...
+     └── simseq
+          ├── ...
+          └── sims_n100_t50_r144.txt
+├── popgensims.sh
+└── ms.exe
+```
+
+To generate the simulated sequences, we use `ms` on the shell script `popgensims.sh` to produce multiple simulations with different text files, based on the different configurations of number of samples and mutation and recombination rates. Prior to execution of the script, convert this script into an executable file using the command: `chmod +x popgensims.sh`. To execute the script, run the command on your terminal:
 
 `./popgensims.sh`
 
