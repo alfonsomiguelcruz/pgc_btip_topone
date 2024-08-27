@@ -19,7 +19,7 @@ The list of libraries used by this project are listed in the `requirements.txt` 
 
 `pip install -r requirements.txt`
 
-to install all the libraries at the specified versions.
+This command can be executed with or without an existing [conda](https://docs.anaconda.com/miniconda/) environment.
 
 ## Pipelines
 ### Goal 01: Is topology robust to noise and sparse genomic samples?
@@ -118,7 +118,7 @@ Some sample commands are shown below:
 ### Goal 02: Does recombination change the topology of genomic samples?
 The script `goal_two_plots.py` uses the GISAID sequence data to produce the data required for the plots and for the statistical analysis.
 
-The user can also provide their own input data, whether it is viral sequences or Hamming distance matrices. However, they must be stored in a folder inside the `inputs` directory.
+The user can also provide their own input data, whether it is viral sequences or Hamming distance matrices, but must be stored in a folder inside the `inputs` directory, as shown below.
 
 ```
 pgc_btip_topone
@@ -127,7 +127,7 @@ pgc_btip_topone
      └── your_input_folder_here
 ```
 
-If the user has raw sequence data, they can use the Nextclade CLI to align sequences against the Wuhan reference genome. To get the aligned sequences, use the script `nextclade_align_seqeuences.sh` to align sequences in bulk and place the new FASTA files . Ensure that this is the project structure to read the inputs and write the outputs at the right directories:
+If the user has raw sequence data, they can use the Nextclade CLI to align sequences against the Wuhan reference genome. To get the aligned sequences, use the script `nextclade_align_seqeuences.sh` to align sequences in bulk and place the new FASTA files. To make the script executable, use the command `chmod +x nextclade_align_seqeuences.sh`. Ensure that this is the project structure to read the inputs and write the outputs at the proper directories:
 
 ```
 pgc_btip_topone
@@ -136,8 +136,7 @@ pgc_btip_topone
      └── your_input_folder_here
           ├── sequence_recom_unaligned.fasta
           ├── sequence_nonrecom_unaligned.fasta
-          └── sequence_mixed_unaligned.fasta
-     └── your_output_folder_here
+          ├── sequence_mixed_unaligned.fasta
           ├── sequence_recom_aligned.fasta
           ├── sequence_nonrecom_aligned.fasta
           └── sequence_mixed_aligned.fasta
@@ -148,9 +147,8 @@ pgc_btip_topone
 
 To execute the script, simply execute `python goal_two_plots.py` on your command line with any of the following arguments:
 
-- `--input`: Uses the sample Hamming distance matrices provided in the repository. The user can choose between `xbc.1`, `xbe`, and `xbz`.
-- `--mats` : Uses the Hamming distance matrices provided by the user themselves.
-- `--seqs` : Uses the FASTA files containing the aligned sequences provided by the user themselves.
+- `--mats` : Provide the recombinant lineage name to retrieve the Hamming distance matrices per country associated with this lineage.
+- `--seqs` : Provide the recombinant lineage name to retrieve the FASTA files containing the aligned sequences provided by the user themselves, for each country they specify.
 
 
 ## Results
