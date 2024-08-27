@@ -6,8 +6,9 @@ import numpy as np
 import pandas as pd
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--mats", help="Argument of the recombinant lineage name and folder")
-parser.add_argument("--seqs", help="Custom Sequences")
+parser.add_argument("--mats", help="Argument of the recombinant lineage name and folder to get the CSV matrices")
+parser.add_argument("--seqs", help="Argument of the recombinant lineage name and folder to get the FASTA sequences")
+parser.add_argument("--fname", help="Argument of the filename for the sequence counts")
 parser.add_argument("--verbose", action='store_true', help="Increases Logging of Messages")
 
 args = parser.parse_args()
@@ -39,14 +40,14 @@ def get_custom_hdmatrices(lineage, fname="sequence_counts.csv"):
         recombinant and parent lineages per country.
     """
 
-    # Get the codes, countries
+    # Get the countries and country codes from the sequence counts
     log.info("[START] Create Country and Code Lists")
     df = pd.read_csv(fname)
     countries = df["country"].to_list()
     codes = df["country_code"].to_list()
     log.info("[END]   Create Country and Code Lists")
         
-    # Get the sequence filepaths
+    # Get the filepaths to the recom, nonrecom, and mixed sequences
     log.info("[START] Get Sequence Filepaths")
     seq_paths = []
     for c in codes:
@@ -57,6 +58,7 @@ def get_custom_hdmatrices(lineage, fname="sequence_counts.csv"):
         seq_paths.append(c_path)
     log.info("[END]   Get Sequence Filepaths")
 
+    # Instantiate the TopONE object
     topone = TopONE(samples=-1,
                     seqtype="VIR",
                     maxdim=2,
@@ -68,17 +70,23 @@ def get_custom_hdmatrices(lineage, fname="sequence_counts.csv"):
         r = df.loc[c == df["country"]]["recom"]
 
         for p in seq_paths[c]:
+            # Get the sequences from the FASTA file
             ss = topone.get_sample_sequences(p)
+
+            # Recombinant Sequences
             if "_recom_" in p:
                 hd = topone.get_hdmatrices(ss)
                 np.savetxt(f"inputs/{lineage}/{codes[c]}_recom_aligned.csv", hd, delimiter=",")
+           
+            # Nonrecombinant Sequences
             elif "_nonrecom_" in p:
-                # nr_size = (300 - r) // 2
-                nr_size = 8
+                nr_size = (300 - r) // 2
 
                 ss = ss[:nr_size] + ss[-nr_size:]
                 hd = topone.get_hdmatrices(ss)
                 np.savetxt(f"inputs/{lineage}/{codes[c]}_nonrecom_aligned.csv", hd, delimiter=",")
+            
+            # Mixed Sequences
             else:
                 x = max(df.iloc[c]["recom"], nr_size)
                 y = min(df.iloc[c]["recom"], nr_size)
@@ -235,16 +243,19 @@ def get_recom_dataframe(lineage, topone, fname):
     else:
         paths, codes, countries = get_custom_filepaths(lineage, fname)
 
-    # (COUNTRIES, GENETYPES, HOMOLOGIES, PAIRSPERHOM)
-    countries_homologies = []
-
     # Create List
+    # (COUNTRIES, GENETYPES, MAXDIM+1, X)
+    countries_homologies = []
     log.info("[START] Get All Homologies from All Countries")
+    # COUNTRIES
     for i in range(0, len(paths)):
         c_homs = []
-        # Gene Type
-        for j in range(0, 3):
+        
+        # GENETYPES
+        for j in range(0, len(gene_types)):
             hdmat = np.genfromtxt(paths[i][j], delimiter=',')
+            
+            # (MAXDIM+1, X)
             hom = topone.fit_transform(hdmat)
             c_homs.append(hom)
         countries_homologies.append(c_homs)
@@ -256,13 +267,13 @@ def get_recom_dataframe(lineage, topone, fname):
 
     
     log.info("[START] Create Dataframe for all Homologies")
-    # 5 countries
+    # COUNTRIES
     for cn in range(0, len(countries)):
-        # 3 gene types
-        for gt in range(0, 3):
-            # 3 homologies
+        # GENETYPES
+        for gt in range(0, len(gene_types)):
+            # MAXDIM+1 Homologies
             for h in range(0, topone.MAXDIM + 1):
-                # pairs per homologies
+                # X Pairs per Homology
                 for i in range(0, len(countries_homologies[cn][gt][h])):
                     row = pd.DataFrame([{ "country": countries[cn],
                                           "country_code": codes[cn],
@@ -277,13 +288,19 @@ def get_recom_dataframe(lineage, topone, fname):
 
 
 def main():
-    if args.mats != None and args.seqs == None:
-        get_recom_dataframe(args.mats, None, "sequence_counts_sample.csv")
-    elif args.mats == None and args.seqs != None:
-        t = get_custom_hdmatrices(args.seqs, "sequence_counts_sample.csv")
-        get_recom_dataframe(args.seqs, t, "sequence_counts_sample.csv")
+    if args.mats != None and args.fname != None and args.seqs == None:
+        get_recom_dataframe(args.mats, None, args.fname)
+    elif args.mats == None and args.fname != None and args.seqs != None:
+        t = get_custom_hdmatrices(args.seqs, args.fname)
+        get_recom_dataframe(args.seqs, t, args.fname)
     else:
-        print("Error: Multiple options chosen. Choose one option only.")
+        if args.mats != None and args.seqs != None:
+            print("Error: Multiple input types chosen. Choose one type only.")
+        elif args.mats == None and args.seqs == None:
+            print("Error: Please choose one input type.")
+        
+        if args.fname == None:
+            print("Error: Please specify a filename for the sequence counts.")
 
 
 if __name__  == "__main__":
