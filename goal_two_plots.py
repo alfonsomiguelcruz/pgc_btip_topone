@@ -8,6 +8,7 @@ import pandas as pd
 parser = argparse.ArgumentParser()
 parser.add_argument("--mats", help="Argument of the recombinant lineage name and folder")
 parser.add_argument("--seqs", help="Custom Sequences")
+parser.add_argument("--verbose", action='store_true', help="Increases Logging of Messages")
 
 args = parser.parse_args()
 
