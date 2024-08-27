@@ -6,8 +6,7 @@ import numpy as np
 import pandas as pd
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--input", help="Input Type")
-parser.add_argument("--mats", help="Custom Matrices")
+parser.add_argument("--mats", help="Argument of the recombinant lineage name and folder")
 parser.add_argument("--seqs", help="Custom Sequences")
 
 args = parser.parse_args()
@@ -15,8 +14,9 @@ args = parser.parse_args()
 
 def get_custom_hdmatrices(lineage, fname="sequence_counts.csv"):
     """
-    Gets the Hamming distance matrices per country per gene type
-    from the user's custom input.
+    Produces the Hamming distance matrices per country per gene type
+    from the user's custom input, and are stored in the
+    inputs/lineage/ directory.
     --------------------
     Parameters:
 
@@ -26,18 +26,21 @@ def get_custom_hdmatrices(lineage, fname="sequence_counts.csv"):
     fname   :   String, default = "sequence_counts.csv"
         A string of the filename containing the number of sequences of the
         recombinant and parent lineages per country.
-
-    
-    Returns:
-
-    countries_matrices  :   list
-        A 4-D list of dimension (NUM_COUNTRIES, NUM_GENE_TYPE, SAMPLES, SAMPLES), that
-        shows the Hamming distance matrices per gene type for each country.
     """
 
-    paths, codes, countries = get_custom_filepaths(lineage)
+    # Get the codes, countries
     df = pd.read_csv(fname)
-    countries_matrices = []
+    countries = df["country"].to_list()
+    codes = df["country_code"].to_list()
+        
+    # Get the sequence filepaths
+    seq_paths = []
+    for c in codes:
+        c_path = []
+        c_path.append(f"inputs/{lineage}/{c}_recom_aligned.fasta")
+        c_path.append(f"inputs/{lineage}/{c}_nonrecom_aligned.fasta")
+        c_path.append(f"inputs/{lineage}/{c}_mixed_aligned.fasta")
+        seq_paths.append(c_path)
 
     topone = TopONE(samples=-1,
                     seqtype="VIR",
@@ -45,25 +48,22 @@ def get_custom_hdmatrices(lineage, fname="sequence_counts.csv"):
                     simulations=-1,
                     segsites=-1)
 
-
     for c in range(0, len(countries)):
         r = df.loc[c == df["country"]]["recom"]
         p1 = df.loc[c == df["country"]]["parent_one"]
         p2 = df.loc[c == df["country"]]["parent_two"]
 
-        c_hds = []
-        # TODO: Currently path contains csv files for HDmats, not sequences; to fix for seqs.
-        for p in paths[c]:
+        for p in seq_paths[c]:
             ss = topone.get_sample_sequences(p)
             if "_recom_" in p:
                 hd = topone.get_hdmatrices(ss)
-                c_hds.append(hd)
+                np.savetxt(f"inputs/{lineage}/{codes[c]}_recom_aligned.csv", hd, delimiter=",")
             elif "_nonrecom_" in p:
                 nr_size = (300 - r) // 2
 
                 ss = ss[:nr_size] + ss[-nr_size:]
                 hd = topone.get_hdmatrices(ss)
-                c_hds.append(hd)
+                np.savetxt(f"inputs/{lineage}/{codes[c]}_nonrecom_aligned.csv", hd, delimiter=",")
             else:
                 x = max(p1, p2)
                 y = min(p1, p2)
@@ -82,12 +82,7 @@ def get_custom_hdmatrices(lineage, fname="sequence_counts.csv"):
                 ss = nr1 + nr2 + r
 
                 hd = topone.get_hdmatrices(ss)
-                c_hds.append(hd)
-
-        
-        countries_matrices.append(c_hds)
-
-    return countries_matrices
+                np.savetxt(f"inputs/{lineage}/{codes[c]}_mixed_aligned.csv", hd, delimiter=",")
 
 
 def get_custom_filepaths(lineage, fname="countries.csv"):
@@ -210,7 +205,10 @@ def get_recom_dataframe(lineage, topone=None):
                         simulations=-1,
                         segsites=-1)
 
-    paths, codes, countries = get_sample_filepaths(lineage)
+    if lineage in ["xbc.1", "xbe", "xbz"]:
+        paths, codes, countries = get_sample_filepaths(lineage)
+    else:
+        paths, codes, countries = get_custom_filepaths(lineage)
 
     # (COUNTRIES, GENETYPES, HOMOLOGIES, PAIRSPERHOM)
     countries_homologies = []
@@ -250,20 +248,10 @@ def get_recom_dataframe(lineage, topone=None):
 
 
 def main():
-    if args.input != None and args.mats == None and args.seqs == None:
-        if args.input == "xbc.1":
-            get_recom_dataframe("xbc.1")
-        elif args.input == "xbe":
-            get_recom_dataframe("xbe")
-        elif args.input == "xbz":
-            get_recom_dataframe("xbz")
-        else:
-            print("Error: Unknown recombinant lineage. " +
-                  "Please choose between the following: xbc.1, xbe, xbz.")
-    elif args.input == None and args.mats != None and args.seqs == None:
-        get_custom_filepaths("testlin")
-    elif args.input == None and args.mats == None and args.seqs != None:
-        pass
+    if args.mats != None and args.seqs == None:
+        get_recom_dataframe(args.mats)
+    elif args.mats == None and args.seqs != None:
+        get_custom_hdmatrices(args.seqs)
     else:
         print("Error: Multiple options chosen. Choose one option only.")
 
