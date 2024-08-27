@@ -15,11 +15,9 @@ The project's repository makes use of scripts and sequence files to answer the q
 Nextclade is an online [web application](https://clades.nextstrain.org/) bioinformatics tool to align sequences and conduct phylogenetic analyses. It also has a CLI version found [here](https://docs.nextstrain.org/projects/nextclade/en/stable/user/nextclade-cli/installation/standalone.html), which performs the same functionalities as the web application version. Download the the latest version of the software based on your architecture (i.e. x86-64) and operating system.
 
 ### Required Libraries
-The list of libraries used by this project are listed in the `requirements.txt` file. To install the libraries, use the command:
+The list of libraries used by this project are listed in the `requirements.yml` file. Before installing the libraries, create a [conda](https://docs.anaconda.com/miniconda/) environment. To install the libraries, use the command:
 
-`pip install -r requirements.txt`
-
-This command can be executed with or without an existing [conda](https://docs.anaconda.com/miniconda/) environment.
+`conda env create --name test --file=requirements.yml`
 
 ## Pipelines
 ### Goal 01: Is topology robust to noise and sparse genomic samples?
@@ -67,15 +65,18 @@ The virus sequence samples, specifically SARS-CoV-2 samples, were taken from the
 
 ## Execution
 ### Goal 01: Is topology robust to noise and sparse genomic samples?
-Before generating the sequences, ensure that the software `ms` and the shell script `popgensims.sh` belong in the same directory, and the directory `inputs/simseq/` is also present as shown below:
+Before generating the sequences, ensure that the software `ms` and the shell script `popgensims.sh` belong in the same directory, and the input directory `inputs/simseq/` and output directories `outputs/goal_one_dfs/` and `outputs/goal_one_plots/` are also present as shown below:
 
 ```
-pgc_btip_topone
-└── inputs
+pgc_btip_topone/
+└── inputs/
      ├── ...
-     └── simseq
+     └── simseq/
           ├── ...
           └── sims_n100_t50_r144.txt
+└── outputs/
+     ├── goal_one_dfs/
+     └── goal_one_plots/
 ├── popgensims.sh
 └── ms.exe
 ```
@@ -108,45 +109,88 @@ To execute the script, simply execute `python goal_one_plots.py` on your command
 
 - `--verbose`: Optional argument that outputs the logs the start and end of each step in the script.
 
-<!-- TODO: Show what the output is, where can it be found -->
+The outuput plots are stored in the [goal_one_plots](outputs/goal_one_plots/) folder. The variance and sparsity plots are stored in a `pdf` file format. THe output dataframes are stored in the [goal_one_dfs](outputs/) folder.
 
 Some sample commands are shown below:
 
 - `python goal_one_plots.py --get-one-plot -nreps 50 -nsite 300 -nsam 100 -t 50 -r 72 --verbose`
-- `python goal_one_plots.py --get-all-plots -nreps 50 -nsite 300 -ns 100 1000 -ts 50 500 -rs 4 12 36 72 144`
+- `python goal_one_plots.py --get-all-plots -nreps 50 -nsite 300 -ns 100 -ts 50 500 5000 -rs 4 12 36 72 144`
 
 
 ### Goal 02: Does recombination change the topology of genomic samples?
 The script `goal_two_plots.py` uses the GISAID sequence data to produce the data required for the plots and for the statistical analysis.
 
-The user can also provide their own input data, whether it is viral sequences or Hamming distance matrices, but must be stored in a folder inside the `inputs` directory, as shown below.
+The user can also provide their own input data, whether it is viral sequences (`.fasta`) or Hamming distance matrices (`.csv`), but must be stored in a folder inside the `inputs` directory, as shown below:
 
 ```
-pgc_btip_topone
-└── inputs
+pgc_btip_topone/
+└── inputs/
      ├── ...
-     └── your_input_folder_here
+     └── your_input_folder_here/
 ```
 
-If the user has raw sequence data, they can use the Nextclade CLI to align sequences against the Wuhan reference genome. To get the aligned sequences, use the script `nextclade_align_seqeuences.sh` to align sequences in bulk and place the new FASTA files. To make the script executable, use the command `chmod +x nextclade_align_seqeuences.sh`. Ensure that this is the project structure to read the inputs and write the outputs at the proper directories:
+If viral sequences files will be used as your input, ensure that the sequences satisfy the following criteria:
+
+- Organized: Suppose `cn_r.fasta`, `cn_p1.fasta`, and `cn_p2.fasta` are the viral sequence data for the recombinant and parent lineages, respectively. The sequences must be used to produce recombinant, nonrecombinant, and mixed sequence `.fasta` files.
+
+- Aligned: The recombinant, nonrecombinant, and mixed sequence files must be aligned against the Wuhan reference genome to produce the aligned sequences.
+
+Before organizing and aligning the sequence files, ensure that the project directory looks like this:
 
 ```
-pgc_btip_topone
-└── inputs
+pgc_btip_topone/
+└── inputs/
      ├── ...
-     └── your_input_folder_here
-          ├── sequence_recom_unaligned.fasta
-          ├── sequence_nonrecom_unaligned.fasta
-          ├── sequence_mixed_unaligned.fasta
-          ├── sequence_recom_aligned.fasta
-          ├── sequence_nonrecom_aligned.fasta
-          └── sequence_mixed_aligned.fasta
-├── wuhan_reference_genome.fasta
+     └── your_input_folder_here/
+          ├── cn_r.fasta
+          ├── cn_p1.fasta
+          └── cn_p2.fasta
+     └── wuhan_reference_genome.fasta
 ├── nextclade_align_sequences.sh
+├── organize_sequences.sh
 └── nextclade-x86_64-unknown-linux-gnu
 ```
 
-To execute the script, simply execute `python goal_two_plots.py` on your command line with any of the following arguments:
+To organize the sequences, use the shell script `organize_sequences.sh` to group the sequences into recombinant, nonrecombinant, and mixed sequences stored in `.fasta` files. To convert this script into an executable, use the command `chmod +x organize_sequences.sh`. To run the executable on your terminal, run the command:
+
+ `./organize_sequences.sh`
+ 
+ Your input folder should look like this after running the script:
+
+```
+pgc_btip_topone/
+└── inputs/
+     ├── ...
+     └── your_input_folder_here/
+          ├── ...
+          ├── cn_recom_unaligned.fasta
+          ├── cn_nonrecom_unaligned.fasta
+          └── cn_mixed_unaligned.fasta
+     └── wuhan_reference_genome.fasta
+├── ...
+└── nextclade-x86_64-unknown-linux-gnu
+```
+
+After organizing the sequences accordingly, align the sequences using Nextclade's CLI through `nextclade-x86_64-unknown-linux-gnu` to align sequences against the Wuhan reference genome. To get the aligned sequences, use the script `nextclade_align_seqeuences.sh` to align all sequences across all organized files. To make the script executable, use the command `chmod +x nextclade_align_seqeuences.sh` and run the script as an executable:
+
+`./nextclade_align_sequences.sh`
+
+The aligned sequences are stored in a `.fasta` file within the input file directory shown below:
+
+```
+pgc_btip_topone/
+└── inputs/
+     ├── ...
+     └── your_input_folder_here/
+          ├── ...
+          ├── cn_recom_aligned.fasta
+          ├── cn_nonrecom_aligned.fasta
+          └── cn_mixed_aligned.fasta
+├── ...
+└── nextclade-x86_64-unknown-linux-gnu
+```
+
+To execute the script, execute `python goal_two_plots.py` on your command line with any of the following arguments:
 
 - `--mats` : Provide the recombinant lineage name to retrieve the Hamming distance matrices per country associated with this lineage.
 - `--seqs` : Provide the recombinant lineage name to retrieve the FASTA files containing the aligned sequences provided by the user themselves, for each country they specify.

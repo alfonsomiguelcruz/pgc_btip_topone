@@ -74,8 +74,8 @@ def get_single_plot(nreps, nsite, nsam, theta, rho):
 
 
     # Filenames for the variance and sparsity CSV files with the topological quantities
-    var_fname = 'outputs/v_'+ f"n{nsam}_" + f"t{theta}_" + f"r{rho}" + ".csv"
-    samp_fname = 'outputs/s_'+ f"n{nsam}_" + f"t{theta}_" + f"r{rho}" + ".csv"
+    var_fname = 'outputs/goal_one_dfs/v_'+ f"n{nsam}_" + f"t{theta}_" + f"r{rho}" + ".csv"
+    samp_fname = 'outputs/goal_one_dfs/s_'+ f"n{nsam}_" + f"t{theta}_" + f"r{rho}" + ".csv"
 
     # Instantiate the TopONE object
     topone = TopONE(samples=params["SAMPLES"],
