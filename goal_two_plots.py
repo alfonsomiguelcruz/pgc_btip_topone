@@ -59,14 +59,15 @@ def get_custom_hdmatrices(lineage, fname="sequence_counts.csv"):
                 hd = topone.get_hdmatrices(ss)
                 np.savetxt(f"inputs/{lineage}/{codes[c]}_recom_aligned.csv", hd, delimiter=",")
             elif "_nonrecom_" in p:
-                nr_size = (300 - r) // 2
+                # nr_size = (300 - r) // 2
+                nr_size = 8
 
                 ss = ss[:nr_size] + ss[-nr_size:]
                 hd = topone.get_hdmatrices(ss)
                 np.savetxt(f"inputs/{lineage}/{codes[c]}_nonrecom_aligned.csv", hd, delimiter=",")
             else:
-                x = max(p1, p2)
-                y = min(p1, p2)
+                x = max(df.iloc[c]["recom"], nr_size)
+                y = min(df.iloc[c]["recom"], nr_size)
 
                 if len(ss[:x]) <= nr_size:
                     nr1 = ss[:x]
@@ -83,9 +84,11 @@ def get_custom_hdmatrices(lineage, fname="sequence_counts.csv"):
 
                 hd = topone.get_hdmatrices(ss)
                 np.savetxt(f"inputs/{lineage}/{codes[c]}_mixed_aligned.csv", hd, delimiter=",")
+    
+    return topone
 
 
-def get_custom_filepaths(lineage, fname="countries.csv"):
+def get_custom_filepaths(lineage, fname="sequence_counts.csv"):
     """
     Gets the path of the Hamming distance matrices in
     CSV file format provided by the user.
@@ -116,7 +119,7 @@ def get_custom_filepaths(lineage, fname="countries.csv"):
     paths = []
 
     df = pd.read_csv(fname)
-    codes = df["country_codes"].tolist()
+    codes = df["country_code"].tolist()
     countries = df["country"].tolist()
 
     for c in codes:
@@ -183,7 +186,7 @@ def get_sample_filepaths(lineage):
     return paths, codes, countries
 
 
-def get_recom_dataframe(lineage, topone=None):
+def get_recom_dataframe(lineage, topone, fname):
     """
     Constructs the dataframe containing the birth and death time pairs of each
     homology group per gene type per country.
@@ -208,7 +211,7 @@ def get_recom_dataframe(lineage, topone=None):
     if lineage in ["xbc.1", "xbe", "xbz"]:
         paths, codes, countries = get_sample_filepaths(lineage)
     else:
-        paths, codes, countries = get_custom_filepaths(lineage)
+        paths, codes, countries = get_custom_filepaths(lineage, fname)
 
     # (COUNTRIES, GENETYPES, HOMOLOGIES, PAIRSPERHOM)
     countries_homologies = []
@@ -249,9 +252,10 @@ def get_recom_dataframe(lineage, topone=None):
 
 def main():
     if args.mats != None and args.seqs == None:
-        get_recom_dataframe(args.mats)
+        get_recom_dataframe(args.mats, None, "sequence_counts_sample.csv")
     elif args.mats == None and args.seqs != None:
-        get_custom_hdmatrices(args.seqs)
+        t = get_custom_hdmatrices(args.seqs, "sequence_counts_sample.csv")
+        get_recom_dataframe(args.seqs, t, "sequence_counts_sample.csv")
     else:
         print("Error: Multiple options chosen. Choose one option only.")
 

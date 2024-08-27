@@ -53,7 +53,7 @@ class TopONE:
         
         # Instantiate Ripser for persistent homology computations
         # using the maxdim parameter
-        self.ripser = Rips(maxdim=maxdim)
+        self.ripser = Rips(maxdim=maxdim, verbose=False)
 
         # If the given seqtype by the user is neither SIM nor VIR
         # raise an error
