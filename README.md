@@ -133,7 +133,7 @@ If viral sequences files will be used as your input, ensure that the sequences s
 
 - Organized: Suppose `cn_r.fasta`, `cn_p1.fasta`, and `cn_p2.fasta` are the viral sequence data for the recombinant and parent lineages, respectively. The sequences must be used to produce recombinant, nonrecombinant, and mixed sequence `.fasta` files.
 
-- Aligned: The recombinant, nonrecombinant, and mixed sequence files must be aligned against the Wuhan reference genome to produce the aligned sequences.
+- Aligned: The recombinant, nonrecombinant, and mixed sequence files must be aligned against the Wuhan reference genome to produce the aligned sequences. The Wuhan reference genome can be downloaded [here](https://github.com/nextstrain/nextclade_data/blob/release/data/nextstrain/sars-cov-2/wuhan-hu-1/orfs/reference.fasta).
 
 Before organizing and aligning the sequence files, ensure that the project directory looks like this:
 
@@ -148,6 +148,8 @@ pgc_btip_topone/
      └── wuhan_reference_genome.fasta
 ├── nextclade_align_sequences.sh
 ├── organize_sequences.sh
+├── sequence_counts.csv
+├── topONE.Rmd
 └── nextclade-x86_64-unknown-linux-gnu
 ```
 
@@ -193,10 +195,18 @@ pgc_btip_topone/
 To execute the script, execute `python goal_two_plots.py` on your command line with any of the following arguments:
 
 - `--mats` : Provide the recombinant lineage name to retrieve the Hamming distance matrices per country associated with this lineage.
-- `--seqs` : Provide the recombinant lineage name to retrieve the FASTA files containing the aligned sequences provided by the user themselves, for each country they specify.
+- `--seqs` : Provide the recombinant lineage name to retrieve the organized aligned sequences in `.fasta` files provided by the user themselves, for each country they specify.
+- `--fname` : Provide the filename of the sequence counts file to be used.
+- `--verbose`: Optional argument that outputs the logs the start and end of each step in the script.
 
-<!-- TODO: Sample commands -->
-<!-- TODO: Show what the output is, where can it be found -->
+The sequence counts file is also used by the script to access the number of sequences found in each lineage for each country, which aids in accessing the input files and creating the dataframe containing birth and death times. A sample of this file is shown [here](./sequence_counts.csv).
+
+The output dataframe is stored in the [goal_two_dfs](outputs/goal_two_dfs/) folder stored as a `.csv` file. The information from the dataframe is used by R markdown notebook `topONE.Rmd` to conduct the statistical analyses to answer the goal.
+
+Some sample commands are shown below:
+
+- `python goal_two_plots.py --mats xbe --fname sequence_counts.csv --verbose`
+- `python goal_two_plots.py --seqs xbf --fname sequence_counts_xbf.csv`
 
 ## Results
 To view our results, you may access our presentation slide deck [here](/[TopONE]%20Final%20Presentation.pdf).
