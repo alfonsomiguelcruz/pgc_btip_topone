@@ -108,6 +108,7 @@ To execute the script, simply execute `python goal_one_plots.py` on your command
 
 - `--verbose`: Optional argument that outputs the logs the start and end of each step in the script.
 
+<!-- TODO: Show what the output is, where can it be found -->
 
 Some sample commands are shown below:
 
@@ -150,6 +151,8 @@ To execute the script, simply execute `python goal_two_plots.py` on your command
 - `--mats` : Provide the recombinant lineage name to retrieve the Hamming distance matrices per country associated with this lineage.
 - `--seqs` : Provide the recombinant lineage name to retrieve the FASTA files containing the aligned sequences provided by the user themselves, for each country they specify.
 
+<!-- TODO: Sample commands -->
+<!-- TODO: Show what the output is, where can it be found -->
 
 ## Results
-<!-- Show Results of the Project in Paragraph form only -->
+To view our results, you may access our presentation slide deck [here](/[TopONE]%20Final%20Presentation.pdf).
