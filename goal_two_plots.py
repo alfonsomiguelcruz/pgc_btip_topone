@@ -12,6 +12,16 @@ parser.add_argument("--verbose", action='store_true', help="Increases Logging of
 
 args = parser.parse_args()
 
+if args.verbose:
+    logging.basicConfig(
+        level=logging.INFO
+    )
+else:
+    logging.basicConfig(
+        level=logging.CRITICAL + 1
+    )
+
+log = logging.getLogger("TOPOne")
 
 def get_custom_hdmatrices(lineage, fname="sequence_counts.csv"):
     """
@@ -30,11 +40,14 @@ def get_custom_hdmatrices(lineage, fname="sequence_counts.csv"):
     """
 
     # Get the codes, countries
+    log.info("[START] Create Country and Code Lists")
     df = pd.read_csv(fname)
     countries = df["country"].to_list()
     codes = df["country_code"].to_list()
+    log.info("[END]   Create Country and Code Lists")
         
     # Get the sequence filepaths
+    log.info("[START] Get Sequence Filepaths")
     seq_paths = []
     for c in codes:
         c_path = []
@@ -42,6 +55,7 @@ def get_custom_hdmatrices(lineage, fname="sequence_counts.csv"):
         c_path.append(f"inputs/{lineage}/{c}_nonrecom_aligned.fasta")
         c_path.append(f"inputs/{lineage}/{c}_mixed_aligned.fasta")
         seq_paths.append(c_path)
+    log.info("[END]   Get Sequence Filepaths")
 
     topone = TopONE(samples=-1,
                     seqtype="VIR",
@@ -49,10 +63,9 @@ def get_custom_hdmatrices(lineage, fname="sequence_counts.csv"):
                     simulations=-1,
                     segsites=-1)
 
+    log.info("[START] Create Hamming Distance Dataframes")
     for c in range(0, len(countries)):
         r = df.loc[c == df["country"]]["recom"]
-        p1 = df.loc[c == df["country"]]["parent_one"]
-        p2 = df.loc[c == df["country"]]["parent_two"]
 
         for p in seq_paths[c]:
             ss = topone.get_sample_sequences(p)
@@ -85,7 +98,8 @@ def get_custom_hdmatrices(lineage, fname="sequence_counts.csv"):
 
                 hd = topone.get_hdmatrices(ss)
                 np.savetxt(f"inputs/{lineage}/{codes[c]}_mixed_aligned.csv", hd, delimiter=",")
-    
+    log.info("[END]   Create Hamming Distance Dataframes")
+
     return topone
 
 
@@ -119,16 +133,20 @@ def get_custom_filepaths(lineage, fname="sequence_counts.csv"):
     
     paths = []
 
+    log.info("[START] Create Country and Code Lists")
     df = pd.read_csv(fname)
     codes = df["country_code"].tolist()
     countries = df["country"].tolist()
+    log.info("[END]   Create Country and Code Lists")
 
+    log.info("[START] Get Sequence Filepaths")
     for c in codes:
         c_path = []
         c_path.append(f"inputs/{lineage}/{c}_recom_aligned.csv")
         c_path.append(f"inputs/{lineage}/{c}_nonrecom_aligned.csv")
         c_path.append(f"inputs/{lineage}/{c}_mixed_aligned.csv")
         paths.append(c_path)
+    log.info("[END]   Get Sequence Filepaths")
 
     return paths, codes, countries
 
@@ -159,6 +177,7 @@ def get_sample_filepaths(lineage):
 
     paths = []
 
+    log.info("[START] Create Country and Code Lists")
     if lineage == "xbc.1":
         codes = ["cn", "ph", "sk", "sg", "us"]
         countries = ["China",
@@ -175,14 +194,16 @@ def get_sample_filepaths(lineage):
         countries = ["Denmark",
                      "Austria",
                      "Germany"]
+    log.info("[END]   Create Country and Code Lists")
 
-
+    log.info("[START] Get Sequence Filepaths")
     for c in codes:
         c_path = []
         c_path.append(f"inputs/{lineage}/{c}_recom_aligned.csv")
         c_path.append(f"inputs/{lineage}/{c}_nonrecom_aligned.csv")
         c_path.append(f"inputs/{lineage}/{c}_mixed_aligned.csv")
         paths.append(c_path)
+    log.info("[END]   Get Sequence Filepaths")
 
     return paths, codes, countries
 
@@ -218,20 +239,23 @@ def get_recom_dataframe(lineage, topone, fname):
     countries_homologies = []
 
     # Create List
+    log.info("[START] Get All Homologies from All Countries")
     for i in range(0, len(paths)):
         c_homs = []
+        # Gene Type
         for j in range(0, 3):
             hdmat = np.genfromtxt(paths[i][j], delimiter=',')
             hom = topone.fit_transform(hdmat)
             c_homs.append(hom)
         countries_homologies.append(c_homs)
-
+    log.info("[END]   Get All Homologies from All Countries")
 
     cols = np.array(["country", "country_code", "gene_type",
                      "homology", "b_time", "d_time"])
     df = pd.DataFrame(columns=cols)
 
     
+    log.info("[START] Create Dataframe for all Homologies")
     # 5 countries
     for cn in range(0, len(countries)):
         # 3 gene types
@@ -249,6 +273,7 @@ def get_recom_dataframe(lineage, topone, fname):
                                         }])
                     df = pd.concat([df, row], ignore_index=True)
     df.to_csv(f"outputs/country_homologies_{lineage}.csv", index=False)
+    log.info("[END]   Create Dataframe for all Homologies")
 
 
 def main():
