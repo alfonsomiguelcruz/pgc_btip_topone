@@ -57,7 +57,7 @@ def get_single_plot(nreps, nsite, nsam, theta, rho):
     """
     
     # Variables for the PDF file of the topological quantity plots
-    pdf_fname = 'outputs/plots_'+ f"n{nsam}_" + f"t{theta}_" + f"r{rho}" +'.pdf'
+    pdf_fname = 'outputs/goal_one_plots/plots_'+ f"n{nsam}_" + f"t{theta}_" + f"r{rho}" +'.pdf'
     pdf = PdfPages(pdf_fname)
 
     # Parameters of the simulations
@@ -180,7 +180,7 @@ def main():
            args.ns    == None and \
            args.ts    == None and \
            args.rs    == None:
-            get_single_plot(args.nreps, args.nsite, args.nsam, args.t, args.r)
+            get_single_plot(args.nreps[0], args.nsite[0], args.nsam[0], args.t[0], args.r[0])
         else:
             if args.nreps == None:
                 print("Error! Please indicate the argument for the number of simulations.")
@@ -210,7 +210,7 @@ def main():
             for n in args.ns:
                 for t in args.ts:
                     for r in args.rs:
-                        get_single_plot(args.nreps, args.nsite, n, t, r)
+                        get_single_plot(args.nreps[0], args.nsite[0], n, t, r)
         else:
             if args.nreps == None:
                 print("Error! Please indicate the argument for the number of simulations.")
