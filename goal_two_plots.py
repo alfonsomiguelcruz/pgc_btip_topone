@@ -82,7 +82,11 @@ def get_custom_hdmatrices(lineage, fname="sequence_counts.csv"):
             elif "_nonrecom_" in p:
                 nr_size = (300 - r) // 2
 
-                ss = ss[:nr_size] + ss[-nr_size:]
+                if nr_size > len(ss):
+                    nr_size = 999
+                else:
+                    ss = ss[:nr_size] + ss[-nr_size:]
+                    
                 hd = topone.get_hdmatrices(ss)
                 np.savetxt(f"inputs/{lineage}/{codes[c]}_nonrecom_aligned.csv", hd, delimiter=",")
             
